@@ -1,0 +1,16 @@
+mysteryTokens:
+  # tier 1 (light shade)
+  - { id: salve, name: Herbal Salve, biome: ruins, tier: 1, symbol: shortcut, payload: { kind: heal, amount: 2 } }
+  - { id: ration, name: Traveler's Ration, biome: ruins, tier: 1, symbol: shortcut, payload: { kind: heal, amount: 1 } }
+  - { id: adrenaline, name: Rush of Nerve, biome: ruins, tier: 1, symbol: shortcut, payload: { kind: ap, amount: 2 } }
+  - { id: clue_scrap, name: Torn Diary Page, biome: ruins, tier: 1, symbol: shortcut, payload: { kind: clue } }
+  - { id: dart_trap, name: Dart Trap, biome: ruins, tier: 1, symbol: shortcut, payload: { kind: trap, damage: 1 } }
+  - { id: rune_ambush, name: Rune of Alarm, biome: ruins, tier: 1, symbol: rune, payload: { kind: rune, symbolCard: ambush } }
+  - { id: rune_ward, name: Rune of Quiet, biome: ruins, tier: 1, symbol: rune, payload: { kind: rune, symbolCard: ward } }
+
+  # tier 2 (dark shade)
+  - { id: elixir, name: Abbot's Elixir, biome: ruins, tier: 2, symbol: shortcut, payload: { kind: heal, amount: 3 } }
+  - { id: focus, name: Moment of Clarity, biome: ruins, tier: 2, symbol: shortcut, payload: { kind: ap, amount: 3 } }
+  - { id: clue_ledger, name: Sealed Ledger, biome: ruins, tier: 2, symbol: shortcut, payload: { kind: clue } }
+  - { id: spike_trap, name: Spike Trap, biome: ruins, tier: 2, symbol: shortcut, payload: { kind: trap, damage: 2 } }
+  - { id: rune_horde, name: Rune of the Hollow, biome: ruins, tier: 2, symbol: rune, payload: { kind: rune, symbolCard: horde } }

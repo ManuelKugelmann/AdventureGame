@@ -1,0 +1,32 @@
+enemies:
+  - id: cultist
+    name: Hollow Cultist
+    tags: [human, cult]
+    ini: 2
+    states:
+      - { name: zealous, atkDice: 2, def: 0 }
+
+  - id: ghoul
+    name: Cloister Ghoul
+    tags: [undead]
+    ini: 3
+    states:
+      - { name: ravenous, atkDice: 2, def: 1 }
+      - { name: wounded, atkDice: 1, def: 0 }
+
+  - id: shade
+    name: Whispering Shade
+    tags: [spirit]
+    ini: 4
+    states:
+      - { name: whole, atkDice: 2, def: 1 }
+      - { name: fraying, atkDice: 2, def: 0 }
+
+  - id: stone_golem
+    name: Stone Warden
+    tags: [construct, guardian]
+    ini: 1
+    states:
+      - { name: intact, atkDice: 3, def: 2 }
+      - { name: cracked, atkDice: 2, def: 1 }
+      - { name: crumbling, atkDice: 1, def: 0 }

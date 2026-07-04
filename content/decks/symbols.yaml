@@ -1,0 +1,18 @@
+symbolCards:
+  - id: ambush
+    name: Ambush!
+    trigger: { kind: rune }
+    oneShot: false
+    effect: { kind: spawnEncounter, count: 1 }
+
+  - id: ward
+    name: Warding Quiet
+    trigger: { kind: rune }
+    oneShot: false
+    effect: { kind: alertDown, amount: 2 }
+
+  - id: horde
+    name: The Hollow Stirs
+    trigger: { kind: rune }
+    oneShot: true
+    effect: { kind: spawnEncounter, count: 2 }

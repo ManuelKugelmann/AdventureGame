@@ -1,0 +1,18 @@
+heroes:
+  - id: warden
+    name: Warden
+    apBase: 2
+    hp: 8
+    skills: { combat: 1, stealth: -1, magic: 0, social: 0 }
+
+  - id: shadowfoot
+    name: Shadowfoot
+    apBase: 3
+    hp: 5
+    skills: { combat: 0, stealth: 1, magic: 0, social: -1 }
+
+  - id: lorekeeper
+    name: Lorekeeper
+    apBase: 2
+    hp: 6
+    skills: { combat: -1, stealth: 0, magic: 1, social: 1 }

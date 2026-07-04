@@ -1,0 +1,61 @@
+cards:
+  - id: crypt_stair
+    name: Crypt Stair
+    biome: ruins
+    tier: 2
+    sections:
+      - { id: descent, cover: partial, chokepoint: 2, slots: [] }
+      - { id: ossuary, cover: covered, chokepoint: 2, slots: [{ kind: mystery }, { kind: mystery }] }
+    sectionEdges:
+      - { a: descent, b: ossuary }
+    entrySection: descent
+    topExits:
+      - { section: ossuary, dCol: 0 }
+    spawns:
+      - { enemy: shade, section: ossuary }
+
+  - id: bell_tower_base
+    name: Bell Tower Base
+    biome: ruins
+    tier: 2
+    sections:
+      - { id: base, cover: open, chokepoint: 3, slots: [] }
+      - { id: stairwell, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+    sectionEdges:
+      - { a: base, b: stairwell }
+    entrySection: base
+    topExits:
+      - { section: stairwell, dCol: 0 }
+    spawns:
+      - { enemy: cultist, section: base }
+      - { enemy: shade, section: stairwell }
+
+  - id: scriptorium_ruin
+    name: Scriptorium Ruin
+    biome: ruins
+    tier: 2
+    sections:
+      - { id: copy_hall, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
+      - { id: archive, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+    sectionEdges:
+      - { a: copy_hall, b: archive }
+    entrySection: copy_hall
+    topExits:
+      - { section: archive, dCol: 1 }
+    spawns:
+      - { enemy: ghoul, section: copy_hall }
+
+  - id: inner_sanctum
+    name: Inner Sanctum
+    biome: ruins
+    tier: 2
+    sections:
+      - { id: antechamber, cover: partial, chokepoint: 2, slots: [] }
+      - { id: sanctum, cover: covered, chokepoint: 3, slots: [{ kind: mystery }, { kind: mystery }] }
+    sectionEdges:
+      - { a: antechamber, b: sanctum }
+    entrySection: antechamber
+    topExits:
+      - { section: sanctum, dCol: 0 }
+    spawns:
+      - { enemy: stone_golem, section: sanctum, sleeper: true }
