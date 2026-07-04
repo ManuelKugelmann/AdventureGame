@@ -5,3 +5,5 @@ content/content.json
 public/content.json
 *.local
 .DS_Store
+test-results/
+playwright-report/

@@ -31,6 +31,9 @@ jobs:
       - run: npm run test:props
       - run: npm run sim -- --games 50
       - run: npm run build
+      # real-browser smoke: bot plays a full game in Chromium against the production build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         with:
           name: balance-reports
