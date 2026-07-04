@@ -11,7 +11,8 @@
     "test:props": "vitest run --config vitest.props.config.ts",
     "lint": "eslint . && tsc --noEmit",
     "content:build": "tsx tools/buildContent.ts",
-    "sim": "tsx tools/sim.ts"
+    "sim": "tsx tools/sim.ts",
+    "sim:sweep": "tsx tools/sweep.ts"
   },
   "dependencies": {
     "konva": "^9.3.0",

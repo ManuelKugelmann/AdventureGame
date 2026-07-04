@@ -29,6 +29,7 @@ npm run test:props     # property tests (fast-check)
 npm run lint           # eslint + tsc --noEmit
 npm run content:build  # YAML → validated JSON (fails on schema/coverage errors)
 npm run sim            # balance simulations → reports/*.csv
+npm run sim:sweep      # config-knob calibration sweeps → reports/sweep.csv
 ```
 
 ## v0 simplifications (vs full design)
