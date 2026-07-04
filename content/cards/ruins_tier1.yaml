@@ -1,0 +1,127 @@
+cards:
+  - id: abbey_gate
+    name: Abbey Gate
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: gate_yard, cover: open, chokepoint: 3, slots: [] }
+      - { id: cloister_wall, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: postern, cover: partial, chokepoint: 2, slots: [] }
+    sectionEdges:
+      - { a: gate_yard, b: cloister_wall }
+      - { a: gate_yard, b: postern }
+    entrySection: gate_yard
+    topExits:
+      - { section: cloister_wall, dCol: 0 }
+      - { section: postern, dCol: 1 }
+    spawns: []
+
+  - id: cloister_garden
+    name: Cloister Garden
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: garden, cover: open, chokepoint: 3, slots: [] }
+      - { id: colonnade, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+    sectionEdges:
+      - { a: garden, b: colonnade }
+    entrySection: garden
+    topExits:
+      - { section: colonnade, dCol: 0 }
+    spawns:
+      - { enemy: cultist, section: colonnade }
+
+  - id: refectory
+    name: Ruined Refectory
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: hall, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
+      - { id: kitchen, cover: covered, chokepoint: 2, slots: [] }
+      - { id: pantry, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+    sectionEdges:
+      - { a: hall, b: kitchen }
+      - { a: kitchen, b: pantry }
+    entrySection: hall
+    topExits:
+      - { section: pantry, dCol: -1 }
+    spawns: []
+
+  - id: chapel_ruin
+    name: Chapel Ruin
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: nave, cover: open, chokepoint: 4, slots: [] }
+      - { id: altar, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: vestry, cover: covered, chokepoint: 2, slots: [] }
+    sectionEdges:
+      - { a: nave, b: altar }
+      - { a: altar, b: vestry }
+      - { a: nave, b: vestry }
+    entrySection: nave
+    topExits:
+      - { section: altar, dCol: 0 }
+      - { section: vestry, dCol: -1 }
+    spawns:
+      - { enemy: ghoul, section: nave }
+
+  - id: collapsed_hall
+    name: Collapsed Hall
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: rubble, cover: partial, chokepoint: 2, slots: [] }
+      - { id: gallery, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
+    sectionEdges:
+      - { a: rubble, b: gallery }
+    entrySection: rubble
+    topExits:
+      - { section: gallery, dCol: 1 }
+    spawns:
+      - { enemy: stone_golem, section: gallery, sleeper: true }
+
+  - id: old_well
+    name: Old Well
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: wellhead, cover: open, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: cistern, cover: covered, chokepoint: 1, slots: [] }
+    sectionEdges:
+      - { a: wellhead, b: cistern }
+    entrySection: wellhead
+    topExits:
+      - { section: cistern, dCol: 0 }
+    spawns: []
+
+  - id: herb_garden
+    name: Herb Garden
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: beds, cover: open, chokepoint: 3, slots: [] }
+      - { id: shed, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+    sectionEdges:
+      - { a: beds, b: shed }
+    entrySection: beds
+    topExits:
+      - { section: shed, dCol: -1 }
+    spawns: []
+
+  - id: dormitory
+    name: Dormitory
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: corridor, cover: partial, chokepoint: 2, slots: [] }
+      - { id: cells, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: stair, cover: partial, chokepoint: 1, slots: [] }
+    sectionEdges:
+      - { a: corridor, b: cells }
+      - { a: corridor, b: stair }
+    entrySection: corridor
+    topExits:
+      - { section: stair, dCol: 0 }
+    spawns:
+      - { enemy: cultist, section: corridor }

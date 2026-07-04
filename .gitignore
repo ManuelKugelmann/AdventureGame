@@ -1,0 +1,7 @@
+node_modules/
+dist/
+reports/
+content/content.json
+public/content.json
+*.local
+.DS_Store

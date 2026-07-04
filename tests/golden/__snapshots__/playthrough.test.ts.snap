@@ -1,0 +1,285 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded run 1`] = `
+{
+  "cardsPlaced": 2,
+  "clues": {
+    "how": "dagger",
+    "where": "crypt",
+    "who": "prior_amos",
+  },
+  "commands": [
+    {
+      "kind": "MoveSection",
+      "toSection": "cloister_wall",
+    },
+    {
+      "kind": "Inspect",
+      "slotIdx": 0,
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "kind": "MoveSection",
+      "toSection": "cloister_wall",
+    },
+    {
+      "exitIdx": 0,
+      "kind": "CrossExit",
+    },
+    {
+      "kind": "MoveSection",
+      "toSection": "colonnade",
+    },
+    {
+      "ap": 1,
+      "kind": "Attack",
+      "targetId": "e2",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e2",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "exitIdx": 0,
+      "kind": "CrossExit",
+    },
+    {
+      "ap": 1,
+      "kind": "Attack",
+      "targetId": "e3",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e3",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e2",
+    },
+    {
+      "kind": "Inspect",
+      "slotIdx": 0,
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e4",
+    },
+    {
+      "ap": 1,
+      "kind": "Attack",
+      "targetId": "e5",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 2,
+      "kind": "Attack",
+      "targetId": "e5",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 2,
+      "kind": "Attack",
+      "targetId": "e6",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e6",
+    },
+    {
+      "ap": 1,
+      "kind": "Attack",
+      "targetId": "e7",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 2,
+      "kind": "Attack",
+      "targetId": "e7",
+    },
+    {
+      "ap": 2,
+      "kind": "Attack",
+      "targetId": "e7",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e9",
+    },
+    {
+      "ap": 1,
+      "kind": "Attack",
+      "targetId": "e9",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e10",
+    },
+    {
+      "ap": 1,
+      "kind": "Attack",
+      "targetId": "e8",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e11",
+    },
+    {
+      "ap": 2,
+      "kind": "Attack",
+      "targetId": "e11",
+    },
+    {
+      "kind": "EndTurn",
+    },
+  ],
+  "eventCounts": {
+    "AlertChanged": 16,
+    "ApSpent": 42,
+    "AttackRolled": 19,
+    "CardCountersTicked": 18,
+    "CardPlaced": 1,
+    "ClueRevealed": 3,
+    "EncounterSpawned": 7,
+    "EnemiesReset": 9,
+    "EnemyActed": 16,
+    "EnemyAttackRolled": 16,
+    "EnemyDefeated": 7,
+    "EnemyMoved": 4,
+    "EnemySpawned": 12,
+    "EnemyStateSwapped": 3,
+    "GameEnded": 1,
+    "HeroDamaged": 9,
+    "HeroDetected": 2,
+    "HeroDowned": 2,
+    "Moved": 5,
+    "PhaseAdvanced": 1,
+    "RoundEnded": 9,
+    "RoundStarted": 10,
+    "SlotUsed": 2,
+    "StealthRolled": 16,
+    "StoryCardDrawn": 9,
+    "TilePoolDrawn": 1,
+    "TokenDrawn": 2,
+    "TurnEnded": 17,
+    "TurnStarted": 17,
+  },
+  "finalHeroes": [
+    {
+      "classId": "warden",
+      "downed": true,
+      "hp": 0,
+    },
+    {
+      "classId": "shadowfoot",
+      "downed": true,
+      "hp": 0,
+    },
+  ],
+  "outcome": {
+    "detail": "wipe",
+    "kind": "loss",
+  },
+  "phaseIdx": 1,
+  "rounds": 10,
+}
+`;

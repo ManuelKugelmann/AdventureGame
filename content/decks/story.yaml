@@ -1,0 +1,20 @@
+storyCards:
+  # phase 1 — arrival
+  - { id: s_intro, type: LORE, text: "The abbey gate hangs open. No bell has rung for a year." }
+  - { id: s_quiet1, type: QUIET, text: "Wind through empty cloisters. Nothing stirs." }
+  - { id: s_clue1, type: CLUE, text: "A survivor's scrawl points somewhere specific." }
+  - { id: s_patrol, type: EVENT, text: "Torchlight sweeps the walls — patrols double." }
+  - { id: s_stirring, type: COMBAT, text: "Something claws its way out of the rubble." }
+
+  # phase 2 — descent
+  - { id: s_clue2, type: CLUE, text: "The ledger names a name it should not." }
+  - { id: s_ambush, type: COMBAT, text: "They were waiting for you." }
+  - { id: s_whispers, type: LORE, text: "The whispers repeat one word: below." }
+  - { id: s_accusation, type: RESOLUTION, text: "You know enough to name the guilty — if you dare." }
+  - { id: s_quiet2, type: QUIET, text: "A held breath between bells." }
+
+  # phase 3 — reckoning
+  - { id: s_clue3, type: CLUE, text: "The last piece falls into place." }
+  - { id: s_horde, type: COMBAT, text: "The Hollow empties its halls at you." }
+  - { id: s_bells, type: EVENT, text: "The dead bell rings by itself. Everything wakes." }
+  - { id: s_quiet3, type: QUIET, text: "Silence again — the worst sound of all." }

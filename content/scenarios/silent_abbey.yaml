@@ -1,0 +1,39 @@
+scenarios:
+  - id: silent_abbey
+    name: The Silent Abbey
+    startBiome: ruins
+    startCard: abbey_gate
+    maxRounds: 16
+    tier2FromRow: 3
+    tilePools:
+      tier1:
+        - cloister_garden
+        - refectory
+        - chapel_ruin
+        - collapsed_hall
+        - old_well
+        - herb_garden
+        - dormitory
+        - cloister_garden
+        - old_well
+      tier2:
+        - crypt_stair
+        - bell_tower_base
+        - scriptorium_ruin
+        - inner_sanctum
+        - crypt_stair
+    encounterPool: [cultist, cultist, ghoul, shade]
+    mysteryPools:
+      tier1: [salve, salve, ration, adrenaline, clue_scrap, clue_scrap, dart_trap, rune_ambush, rune_ward]
+      tier2: [elixir, clue_ledger, clue_ledger, spike_trap, rune_horde, focus]
+    phases:
+      - id: arrival
+        deck: [s_intro, s_quiet1, s_clue1, s_patrol, s_stirring]
+      - id: descent
+        deck: [s_clue2, s_ambush, s_whispers, s_accusation, s_quiet2]
+      - id: reckoning
+        deck: [s_clue3, s_horde, s_bells, s_quiet3]
+    solution:
+      who: [prior_amos, sister_maren, the_hollow_king]
+      where: [crypt, bell_tower, scriptorium]
+      how: [poison, forbidden_ritual, dagger]
