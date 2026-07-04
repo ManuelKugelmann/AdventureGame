@@ -26,6 +26,7 @@ simulations (same shape as [FieldworkGame](https://github.com/ManuelKugelmann/Fi
 npm run dev            # vite dev server
 npm test               # vitest (unit + golden + bot playtest gate)
 npm run test:props     # property tests (fast-check)
+npm run test:e2e       # Playwright: bot plays a full game in real Chromium
 npm run lint           # eslint + tsc --noEmit
 npm run content:build  # YAML → validated JSON (fails on schema/coverage errors)
 npm run sim            # balance simulations → reports/*.csv

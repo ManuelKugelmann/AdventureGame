@@ -68,7 +68,7 @@ export const useStore = create<UiStore>((set, get) => ({
     gameRng = makeRng(s);
     botRng = makeRng(s ^ 0x5eed);
     const { state, events } = createGame(content, { scenarioId: 'silent_abbey', heroClassIds: p, seed: s }, gameRng);
-    const log = events.map((e) => describeEvent(content, e)).filter((x): x is string => !!x);
+    const log = events.map((e) => describeEvent(content, e, p)).filter((x): x is string => !!x);
     set({ state, commands: [], log, seed: s, party: p, auto: false, selectedEnemyId: undefined, error: undefined });
   },
 
@@ -77,7 +77,9 @@ export const useStore = create<UiStore>((set, get) => ({
     if (!content || !state || !gameRng) return;
     try {
       const res = applyCommand(content, state, cmd, gameRng);
-      const lines = res.events.map((e) => describeEvent(content, e)).filter((x): x is string => !!x);
+      const lines = res.events
+        .map((e) => describeEvent(content, e, state.setup.heroClassIds))
+        .filter((x): x is string => !!x);
       set({
         state: res.state,
         commands: [...get().commands, cmd],
@@ -130,7 +132,7 @@ export const useStore = create<UiStore>((set, get) => ({
       const { state, events, rng } = replaySave(content, save);
       gameRng = rng;
       botRng = makeRng(save.setup.seed ^ 0x5eed);
-      const log = events.map((e) => describeEvent(content, e)).filter((x): x is string => !!x);
+      const log = events.map((e) => describeEvent(content, e, save.setup.heroClassIds)).filter((x): x is string => !!x);
       set({
         state,
         commands: [...save.commands],

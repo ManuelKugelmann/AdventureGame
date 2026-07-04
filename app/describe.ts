@@ -1,8 +1,12 @@
 import type { ContentDB, GameEvent } from '../engine/index';
 
 /** Human-readable one-liners for the event log. */
-export function describeEvent(content: ContentDB, ev: GameEvent): string | undefined {
-  const heroName = (idx: number): string => `Hero ${idx + 1}`;
+export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: string[] = []): string | undefined {
+  const heroName = (idx: number): string => {
+    const classId = heroClassIds[idx];
+    const className = classId ? content.heroes[classId]?.name : undefined;
+    return className ? `${className} (${idx + 1})` : `Hero ${idx + 1}`;
+  };
   switch (ev.kind) {
     case 'RoundStarted':
       return `— Round ${ev.round} —`;
