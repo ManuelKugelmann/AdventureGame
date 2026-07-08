@@ -7,6 +7,7 @@ import {
   type Theory,
 } from '../engine/index';
 import { legalForActive, useStore } from './store';
+import { classIcon, playerColor } from './format';
 
 /** a line of filled + empty hearts, e.g. 7/8 → ♥♥♥♥♥♥♥♡ */
 const hearts = (hp: number, max: number): string =>
@@ -26,34 +27,46 @@ export function HeroPanel(): JSX.Element | null {
           <div
             key={h.idx}
             className={`hero-row ${active ? 'active' : ''} ${h.downed ? 'downed' : ''}`}
+            style={{ borderLeft: `3px solid ${playerColor(h.idx)}` }}
             title={[
               `${def.name} — player ${h.idx + 1}`,
               `HP ${h.hp}/${def.hp}`,
               `${h.ap} action points left`,
-              h.downed ? 'Downed' : h.detected ? 'Detected' : 'Unseen',
+              h.downed ? 'Downed' : h.detected ? 'In the open' : 'Hidden',
               `Skills — combat ${def.skills.combat}, stealth ${def.skills.stealth}, magic ${def.skills.magic}, social ${def.skills.social}`,
             ].join('\n')}
           >
-            <b>{h.idx + 1}. {def.name}</b>
-            <span className="hp-hearts" title={`${h.hp}/${def.hp} HP`}> HP: {hearts(h.hp, def.hp)}</span>
-            <span
-              className="ap-pips"
-              title={[
-                `${h.ap} action points (⚡) left this turn`,
-                '',
-                `move a zone — ${config.costs.moveSection}⚡`,
-                `cross an exit — ${config.costs.crossExit}⚡`,
-                `inspect ❖ — ${config.costs.inspect}⚡`,
-                `hide — ${config.costs.reHide}⚡`,
-                `attack — 1–${config.costs.attackMaxAp}⚡ (more ⚡ = more dice)`,
-                '',
-                'refills each turn: class base + dice roll',
-              ].join('\n')}
-            >
-              {' '}
-              AP: {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}
-            </span>
-            <span className={h.downed ? 'downed-tag' : h.detected ? 'open-muted' : 'hidden-mark'}> {h.downed ? 'DOWN' : h.detected ? 'in the open' : 'HIDDEN'}</span>
+            <div className="hr-line">
+              <span className="hr-name">
+                <b style={{ color: playerColor(h.idx) }}>{h.idx + 1}</b> {classIcon(h.classId)} {def.name}
+              </span>
+              <span className={`hr-status ${h.downed ? 'downed-tag' : h.detected ? 'open-muted' : 'hidden-mark'}`}>{h.downed ? 'DOWN' : h.detected ? 'in the open' : 'HIDDEN'}</span>
+              <span
+                className="hr-ap ap-pips"
+                title={[
+                  `${h.ap} action points (⚡) left this turn`,
+                  '',
+                  `move a zone — ${config.costs.moveSection}⚡`,
+                  `cross an exit — ${config.costs.crossExit}⚡`,
+                  `inspect ❖ — ${config.costs.inspect}⚡`,
+                  `hide — ${config.costs.reHide}⚡`,
+                  `attack — 1–${config.costs.attackMaxAp}⚡ (more ⚡ = more dice)`,
+                  '',
+                  'refills each turn: class base + dice roll',
+                ].join('\n')}
+              >
+                AP {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}
+              </span>
+            </div>
+            <div className="hr-line hr-stats">
+              <span className="hr-hp hp-hearts" title={`${h.hp}/${def.hp} HP`}>HP {hearts(h.hp, def.hp)}</span>
+            </div>
+            <div className="hr-line hr-skills" title="skills (inventory & armor systems not yet implemented)">
+              <span title="combat">⚔ {def.skills.combat >= 0 ? '+' : ''}{def.skills.combat}</span>
+              <span title="stealth">🌫 {def.skills.stealth >= 0 ? '+' : ''}{def.skills.stealth}</span>
+              <span title="magic">✨ {def.skills.magic >= 0 ? '+' : ''}{def.skills.magic}</span>
+              <span title="social">💬 {def.skills.social >= 0 ? '+' : ''}{def.skills.social}</span>
+            </div>
           </div>
         );
       })}
@@ -65,12 +78,12 @@ export function PoolsPanel(): JSX.Element | null {
   const { content, state } = useStore();
   if (!content || !state) return null;
   const stacks = [
-    { sym: '🃏', tag: 'T1', n: state.tilePools.tier1.length, label: 'tier-1 tiles left to explore into' },
-    { sym: '🃏', tag: 'T2', n: state.tilePools.tier2.length, label: 'tier-2 tiles left (deeper rows)' },
-    { sym: '❖', tag: 'T1', n: state.mysteryPools.tier1.length, label: 'tier-1 mystery tokens left to draw' },
-    { sym: '❖', tag: 'T2', n: state.mysteryPools.tier2.length, label: 'tier-2 mystery tokens left' },
-    { sym: '📖', tag: '', n: state.phaseDecks[state.phaseIdx]?.length ?? 0, label: 'story cards left in the current phase deck' },
-    { sym: '☠', tag: '', n: state.encounterPool.length, label: 'encounter enemy types (drawn with replacement)' },
+    { sym: '▬', tag: 'T1', n: state.tilePools.tier1.length, color: '#c9a86a', label: 'tier-1 tiles left to explore into (shallower rows)' },
+    { sym: '▬', tag: 'T2', n: state.tilePools.tier2.length, color: '#a86a4a', label: 'tier-2 tiles left (deeper, tougher rows)' },
+    { sym: '❖', tag: 'T1', n: state.mysteryPools.tier1.length, color: '#7ec8e3', label: 'tier-1 mystery tokens left to draw' },
+    { sym: '❖', tag: 'T2', n: state.mysteryPools.tier2.length, color: '#7ec8e3', label: 'tier-2 mystery tokens left' },
+    { sym: '📖', tag: '', n: state.phaseDecks[state.phaseIdx]?.length ?? 0, color: '#c8b0d8', label: 'story cards left in the current phase deck' },
+    { sym: '☠', tag: '', n: state.encounterPool.length, color: '#c88080', label: 'encounter enemy types (drawn with replacement)' },
   ];
   return (
     <div className="panel pools-panel">
@@ -78,7 +91,7 @@ export function PoolsPanel(): JSX.Element | null {
       <div className="stacks">
         {stacks.map((s, i) => (
           <span key={i} className="stack" title={`${s.n} ${s.label}`}>
-            {s.sym}{s.tag && <sub>{s.tag}</sub>} {s.n}
+            <span style={{ color: s.color }}>{s.sym}</span>{s.tag && <sub>{s.tag}</sub>} {s.n}
           </span>
         ))}
       </div>
@@ -193,6 +206,17 @@ export function ResolutionPanel(): JSX.Element | null {
   );
 }
 
+const LOG_TOKENS = /(\[[▫▪✦]+\]|⚡+|[♥♡]+)/g;
+/** style dice, AP (⚡) and HP (♥♡) glyphs within a log line */
+function renderLogLine(line: string): (JSX.Element | string)[] {
+  return line.split(LOG_TOKENS).map((part, j) => {
+    if (/^\[[▫▪✦]+\]$/.test(part)) return <span key={j} className="log-dice">{part}</span>;
+    if (/^⚡+$/.test(part)) return <span key={j} className="log-ap">{part}</span>;
+    if (/^[♥♡]+$/.test(part)) return <span key={j} className="log-hp">{part}</span>;
+    return part;
+  });
+}
+
 export function LogPanel(): JSX.Element {
   const { log, error } = useStore();
   return (
@@ -201,7 +225,7 @@ export function LogPanel(): JSX.Element {
       {error && <div className="error">⚠ {error}</div>}
       <div className="log-lines">
         {log.slice(-60).map((line, i) => (
-          <div key={i} className={line.startsWith('—') ? 'log-round' : ''}>{line}</div>
+          <div key={i} className={line.startsWith('—') ? 'log-round' : ''}>{renderLogLine(line)}</div>
         ))}
       </div>
     </div>

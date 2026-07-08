@@ -41,9 +41,9 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'EnemyAttackRolled':
       return `Enemy strikes ${heroName(ev.heroIdx)}${dice(ev.roll)}: ${ev.netHits} damage`;
     case 'HeroDamaged':
-      return `${heroName(ev.heroIdx)} takes ${ev.amount} damage`;
+      return `${heroName(ev.heroIdx)} takes ${ev.amount}♥ damage`;
     case 'HeroHealed':
-      return `${heroName(ev.heroIdx)} heals ${ev.amount}`;
+      return `${heroName(ev.heroIdx)} heals ${ev.amount}♥`;
     case 'HeroDowned':
       return `${heroName(ev.heroIdx)} is DOWN`;
     case 'EnemySpawned':

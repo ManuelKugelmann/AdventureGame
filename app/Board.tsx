@@ -12,7 +12,7 @@ import {
   type SectionDef,
 } from '../engine/index';
 import { useStore, legalForActive } from './store';
-import { zoneLabel } from './format';
+import { classIcon, playerColor, zoneLabel } from './format';
 
 const COVER_HINT = {
   open: 'exposed — easier to be spotted',
@@ -182,7 +182,9 @@ export function Board(): JSX.Element {
             <Group key={card.id} x={x} y={y}>
               {/* card background also carries the card tooltip so empty areas re-assert it */}
               <Rect width={CARD_W} height={CARD_H} fill="#1e2420" stroke="#5a6b5a" strokeWidth={2} cornerRadius={10} {...showTip(cardInfo)} />
-              <Text text={def.name} x={10} y={6} fontSize={14} fontStyle="bold" fill="#d8d2b8" {...showTip(cardInfo)} />
+              {/* tile marker (matches the Stacks icon); tier colour */}
+              <Rect x={9} y={10} width={17} height={9} fill={def.tier === 2 ? '#a86a4a' : '#c9a86a'} cornerRadius={1.5} {...showTip(cardInfo)} />
+              <Text text={def.name} x={31} y={6} fontSize={14} fontStyle="bold" fill="#d8d2b8" {...showTip(cardInfo)} />
               {/* alert pips */}
               {[0, 1, 2, 3].map((i) => (
                 <Circle
@@ -494,14 +496,16 @@ export function Board(): JSX.Element {
                       ].join('\n');
                       return (
                         <Group key={h.idx} x={geom.w - 15 - i * 26} y={tokenY} {...showTip(heroTip)}>
+                          {h.idx === state.activeHeroIdx && <Circle radius={13} stroke="#e8d44d" strokeWidth={1.5} />}
                           <Circle
                             radius={11}
-                            fill={h.idx === state.activeHeroIdx ? '#2d6a4f' : '#40556a'}
-                            stroke={h.detected ? '#5a6a7a' : '#86e0a0'}
+                            fill={playerColor(h.idx)}
+                            opacity={h.idx === state.activeHeroIdx ? 1 : 0.7}
+                            stroke={h.detected ? '#3a4652' : '#e8fff0'}
                             strokeWidth={2.5}
                             dash={h.detected ? undefined : [3, 2]}
                           />
-                          <Text text={`${h.idx + 1}`} x={-4} y={-7} fontSize={13} fontStyle="bold" fill="#fff" />
+                          <Text text={classIcon(h.classId)} x={-7} y={-7} fontSize={12} />
                         </Group>
                       );
                     })}
