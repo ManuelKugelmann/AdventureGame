@@ -14,12 +14,13 @@ function PartyBuilder(): JSX.Element | null {
   const fallback = classIds[0]!; // content guarantees ≥1 hero class
 
   return (
-    <div className="party-builder" aria-label="party">
+    <div className="party-builder" aria-label="party" title="Hot-seat party (1–6 players). Pick each player's hero class; duplicates are allowed.">
       <span className="party-label">players</span>
       {party.map((classId, i) => (
         <select
           key={i}
           aria-label={`player ${i + 1} class`}
+          title={`Player ${i + 1}'s hero class`}
           value={classId}
           onChange={(e) => store.setParty(party.map((c, j) => (j === i ? e.target.value : c)))}
         >
@@ -78,12 +79,13 @@ export function App(): JSX.Element {
       <header>
         <h1>🕯 The Silent Abbey</h1>
         <div className="toolbar">
-          <label>
+          <label title="Random seed. The same seed + same party + same moves always produce the same game (deterministic engine).">
             seed{' '}
             <input value={seedInput} size={8} onChange={(e) => setSeedInput(e.target.value)} />
           </label>
           <PartyBuilder />
           <button
+            title="Start a fresh game with the current seed and party."
             onClick={() => {
               const n = Number(seedInput);
               store.newGame(Number.isFinite(n) ? n : undefined);
@@ -91,14 +93,18 @@ export function App(): JSX.Element {
           >
             ▶ New game
           </button>
-          <button onClick={() => store.botStep()} disabled={!state || !!outcome}>
+          <button title="Let the greedy bot take one action for the active hero." onClick={() => store.botStep()} disabled={!state || !!outcome}>
             🤖 Bot step
           </button>
-          <button onClick={() => store.setAuto(!store.auto)} disabled={!state || !!outcome}>
+          <button
+            title="Let the bot play automatically until the game ends."
+            onClick={() => store.setAuto(!store.auto)}
+            disabled={!state || !!outcome}
+          >
             {store.auto ? '⏸ Stop bot' : '⏩ Bot autoplay'}
           </button>
-          <button onClick={() => store.saveToLocal()} disabled={!state}>💾 Save</button>
-          <button onClick={() => store.loadFromLocal()}>📂 Load</button>
+          <button title="Save this game to your browser (stored as the command log, replayed on load)." onClick={() => store.saveToLocal()} disabled={!state}>💾 Save</button>
+          <button title="Reload the last saved game from your browser." onClick={() => store.loadFromLocal()}>📂 Load</button>
         </div>
       </header>
 

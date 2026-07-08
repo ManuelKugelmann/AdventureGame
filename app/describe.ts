@@ -69,18 +69,29 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'GameEnded':
       return ev.outcome.kind === 'win' ? `☀ VICTORY (${ev.outcome.detail})` : `☠ DEFEAT (${ev.outcome.detail})`;
     case 'TurnEnded':
-    case 'RoundEnded':
+      return `${heroName(ev.heroIdx)} ends turn`;
     case 'ApSpent':
+      return `${heroName(ev.heroIdx)} spends ${ev.amount} AP`;
     case 'ApGained':
+      return `${heroName(ev.heroIdx)} gains ${ev.amount} AP`;
     case 'ExitLinked':
+      return `Passage links to an explored area`;
+    case 'EnemyMoved':
+      return `An enemy shifts to ${ev.section}`;
+    case 'EnemyActed':
+      return ev.action === 'investigate'
+        ? `An enemy investigates`
+        : ev.action === 'idle'
+          ? `An enemy waits, watchful`
+          : undefined; // 'attack'/'move' are covered by their own lines
+    case 'SlotUsed':
+      return `Searched ❖ in ${ev.section}`;
+    case 'RoundEnded':
     case 'TilePoolDrawn':
     case 'CardCountersTicked':
-    case 'EnemyMoved':
-    case 'EnemyActed':
     case 'EnemiesReset':
-    case 'SlotUsed':
     case 'SymbolFired':
-      return undefined; // too noisy for the log
+      return undefined; // internal, or duplicated by an adjacent line
     default:
       ev satisfies never;
       return undefined;

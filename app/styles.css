@@ -46,6 +46,23 @@ aside { display: flex; flex-direction: column; gap: 10px; width: 380px; max-widt
 .action-buttons .end-turn { background: #3b3323; }
 .sneak-toggle { display: block; font-size: 12px; margin-bottom: 6px; color: #a8b598; }
 .turn-tag { font-size: 12px; font-weight: normal; color: #a8b598; }
+.hp-hearts { color: #d98080; letter-spacing: 1px; }
+
+/* board hover tooltip: floats at the pointer, never affects layout */
+.board-tip {
+  position: fixed;
+  z-index: 1000;
+  max-width: 260px;
+  padding: 6px 9px;
+  background: #14180f;
+  color: #e6e0c8;
+  border: 1px solid #6b7a5c;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+}
 .hint { font-size: 11px; color: #6f7d6b; margin-top: 6px; }
 
 .accuse select { width: 100%; margin-bottom: 5px; background: #1c231e; color: #d8d2b8; border: 1px solid #3c463c; padding: 4px; }
