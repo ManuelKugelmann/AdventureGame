@@ -26,9 +26,13 @@ export function HeroPanel(): JSX.Element | null {
           <div
             key={h.idx}
             className={`hero-row ${active ? 'active' : ''} ${h.downed ? 'downed' : ''}`}
-            title={`${def.name} — player ${h.idx + 1}. HP ${h.hp}/${def.hp}, ${h.ap} action points left. ${
-              h.downed ? 'Downed.' : h.detected ? 'Detected by enemies.' : 'Hidden from enemies.'
-            } Skills: combat ${def.skills.combat}, stealth ${def.skills.stealth}, magic ${def.skills.magic}, social ${def.skills.social}.`}
+            title={[
+              `${def.name} — player ${h.idx + 1}`,
+              `HP ${h.hp}/${def.hp}`,
+              `${h.ap} action points left`,
+              h.downed ? 'Downed' : h.detected ? 'Detected by enemies' : 'Hidden from enemies',
+              `Skills — combat ${def.skills.combat}, stealth ${def.skills.stealth}, magic ${def.skills.magic}, social ${def.skills.social}`,
+            ].join('\n')}
           >
             <b>{h.idx + 1}. {def.name}</b>
             <span className="hp-hearts" title={`${h.hp}/${def.hp} HP`}> {hearts(h.hp, def.hp)}</span>

@@ -10,6 +10,7 @@ import {
   type SectionDef,
 } from '../engine/index';
 import { useStore, legalForActive } from './store';
+import { zoneLabel } from './format';
 
 const COVER_HINT = {
   open: 'exposed — easier to be spotted',
@@ -137,7 +138,7 @@ export function Board(): JSX.Element {
                 fontSize={14}
                 fontStyle="bold"
                 fill="#d8d2b8"
-                {...showTip(`${def.name} — alert ${card.alert}/3${card.alert === 0 ? ' (calm)' : ''}. Higher alert means harder stealth and more encounters. The dots at right show the level.`)}
+                {...showTip([`${def.name}`, `Alert ${card.alert}/3${card.alert === 0 ? ' (calm)' : ''}`, 'Higher alert = harder stealth, more encounters.', 'The dots at right show the level.'].join('\n'))}
               />
               {/* alert pips */}
               {[0, 1, 2, 3].map((i) => (
@@ -157,8 +158,8 @@ export function Board(): JSX.Element {
                 const walled = card.blockedExits.includes(exitIdx);
                 const explored = card.exploredExits[exitIdx] !== undefined;
                 const exitTip = walled
-                  ? 'This exit is walled off — the tile pool ran dry here.'
-                  : `Exit to the ${exit.side} brick above${explored ? ' (already explored)' : ' — click to explore what lies beyond'}.`;
+                  ? 'This exit is walled off.\n(The tile pool ran dry here.)'
+                  : [`Exit to the ${exit.side} brick above`, explored ? 'Already explored.' : 'Click to explore what lies beyond.'].join('\n');
                 // anchor to the left/right brick above, never centered — even for a lone full-width exit
                 const exitX = exit.side === 'left' ? CARD_W * 0.25 : CARD_W * 0.75;
                 return (
@@ -184,13 +185,14 @@ export function Board(): JSX.Element {
                 const slotStates = sDef.slots.map((_, i) => !!card.usedSlots[`${sDef.id}:${i}`]);
                 const isActiveHere = hero && hero.cardId === card.id && hero.section === sDef.id;
                 const tokenY = geom.h - 16;
-                const zoneTip =
-                  `${sDef.id}${sDef.hiding ? ' — hiding nook' : ''}: ` +
-                  `${sDef.cover} cover (${COVER_HINT[sDef.cover]}); ` +
-                  `chokepoint ${sDef.chokepoint} (${sDef.chokepoint}+ enemies here block movement through this zone)` +
-                  (sDef.capacity ? `; holds up to ${sDef.capacity} occupant${sDef.capacity === 1 ? '' : 's'}` : '') +
-                  (sDef.ambush ? '; may conceal an ambusher' : '') +
-                  `. Click to move here.`;
+                const zoneTip = [
+                  `${zoneLabel(sDef.id)}${sDef.hiding ? ' (hiding nook)' : ''}`,
+                  `Cover: ${sDef.cover} — ${COVER_HINT[sDef.cover]}`,
+                  `Chokepoint ${sDef.chokepoint}: ${sDef.chokepoint}+ enemies here block passage through`,
+                  ...(sDef.capacity ? [`Holds up to ${sDef.capacity} occupant${sDef.capacity === 1 ? '' : 's'}`] : []),
+                  ...(sDef.ambush ? ['May conceal an ambusher'] : []),
+                  'Click to move here.',
+                ].join('\n');
                 return (
                   <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip)} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
                     <Rect
@@ -202,7 +204,7 @@ export function Board(): JSX.Element {
                       cornerRadius={6}
                       dash={sDef.hiding ? [5, 3] : undefined}
                     />
-                    <Text text={`${sDef.hiding ? '🌿 ' : ''}${sDef.id}`} x={5} y={4} fontSize={11} fill="#b8c4a8" width={geom.w - 10} ellipsis wrap="none" />
+                    <Text text={`${sDef.hiding ? '🌿 ' : ''}${zoneLabel(sDef.id)}`} x={5} y={4} fontSize={11} fill="#b8c4a8" width={geom.w - 10} ellipsis wrap="none" />
                     <Text text={`${COVER_GLYPH[sDef.cover]} · choke ${sDef.chokepoint}${sDef.capacity ? ` · cap ${sDef.capacity}` : ''}`} x={5} y={18} fontSize={10} fill="#8a967e" width={geom.w - 10} ellipsis wrap="none" />
                     {/* mystery slots */}
                     {sDef.slots.map((_, i) => (
@@ -216,8 +218,8 @@ export function Board(): JSX.Element {
                       const remaining = Math.max(0, total - e.stateIdx);
                       const stateName = eDef?.states[e.stateIdx]?.name ?? '?';
                       const enemyTip = e.sleeper
-                        ? `${eDef?.name ?? e.defId} — dormant 💤. Neutral until disturbed; sneak past or strike first.`
-                        : `${eDef?.name ?? e.defId} — ${stateName} (${remaining}/${total} health). Click to focus, then Attack from the same zone.`;
+                        ? [`${eDef?.name ?? e.defId}`, 'Dormant 💤 — neutral until disturbed.', 'Sneak past, or strike first.'].join('\n')
+                        : [`${eDef?.name ?? e.defId}`, `${stateName} — ${remaining}/${total} health`, 'Click to focus, then Attack from the same zone.'].join('\n');
                       return (
                         <Group
                           key={e.id}
@@ -242,9 +244,12 @@ export function Board(): JSX.Element {
                     {/* heroes */}
                     {heroesHere.map((h, i) => {
                       const hDef = getHeroClassDef(content, h.classId);
-                      const heroTip = `Player ${h.idx + 1} — ${hDef.name}. HP ${h.hp}/${hDef.hp}, ${
-                        h.detected ? 'detected by enemies' : 'hidden'
-                      }${h.idx === state.activeHeroIdx ? '; active this turn' : ''}.`;
+                      const heroTip = [
+                        `Player ${h.idx + 1} — ${hDef.name}`,
+                        `HP ${h.hp}/${hDef.hp}`,
+                        h.detected ? 'Detected by enemies' : 'Hidden from enemies',
+                        ...(h.idx === state.activeHeroIdx ? ['Active this turn'] : []),
+                      ].join('\n');
                       return (
                         <Group key={h.idx} x={geom.w - 15 - i * 26} y={tokenY} {...showTip(heroTip)}>
                           <Circle
@@ -273,7 +278,7 @@ export function Board(): JSX.Element {
                   const bx = b.x + b.w / 2;
                   const by = b.y + b.h / 2;
                   return (
-                    <Group key={`bar${i}`} {...showTip(`Barrier between ${e.a} and ${e.b}: requires ${e.requires}. No special-move ability exists yet, so it can't be crossed in v0.`)}>
+                    <Group key={`bar${i}`} {...showTip([`Barrier: ${zoneLabel(e.a)} ↔ ${zoneLabel(e.b)}`, `Requires ${e.requires}`, 'No special-move ability exists yet — uncrossable in v0.'].join('\n'))}>
                       <Line points={[ax, ay, bx, by]} stroke="#8a6d3b" strokeWidth={2} dash={[4, 4]} />
                       <Text text={`⛰ ${e.requires}`} x={(ax + bx) / 2 - 16} y={(ay + by) / 2 - 6} fontSize={9} fill="#c8a86a" />
                     </Group>

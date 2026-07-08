@@ -59,7 +59,8 @@ aside { display: flex; flex-direction: column; gap: 10px; width: 380px; max-widt
   border: 1px solid #6b7a5c;
   border-radius: 6px;
   font-size: 12px;
-  line-height: 1.35;
+  line-height: 1.4;
+  white-space: pre-line; /* honor \n between separate infos */
   pointer-events: none;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
 }

@@ -1,4 +1,5 @@
 import type { ContentDB, GameEvent } from '../engine/index';
+import { zoneLabel } from './format';
 
 const hits = (n: number): string => `${n} hit${n === 1 ? '' : 's'}`;
 
@@ -15,7 +16,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'TurnStarted':
       return `${heroName(ev.heroIdx)} starts turn with ${ev.ap} AP (rolled ${hits(ev.apRoll.hits)})`;
     case 'Moved':
-      return `${heroName(ev.heroIdx)} → ${ev.section}`;
+      return `${heroName(ev.heroIdx)} → ${zoneLabel(ev.section)}`;
     case 'CardPlaced':
       return `Revealed: ${content.cards[ev.defId]?.name ?? ev.defId}`;
     case 'ExitWalled':
@@ -77,7 +78,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'ExitLinked':
       return `Passage links to an explored area`;
     case 'EnemyMoved':
-      return `An enemy shifts to ${ev.section}`;
+      return `An enemy shifts to ${zoneLabel(ev.section)}`;
     case 'EnemyActed':
       return ev.action === 'investigate'
         ? `An enemy investigates`
@@ -85,7 +86,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
           ? `An enemy waits, watchful`
           : undefined; // 'attack'/'move' are covered by their own lines
     case 'SlotUsed':
-      return `Searched ❖ in ${ev.section}`;
+      return `Searched ❖ in ${zoneLabel(ev.section)}`;
     case 'RoundEnded':
     case 'TilePoolDrawn':
     case 'CardCountersTicked':
