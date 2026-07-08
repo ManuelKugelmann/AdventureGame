@@ -19,6 +19,9 @@ const gi = args.indexOf('--games');
 const GAMES = gi >= 0 ? Number(args[gi + 1]) : 80;
 if (!Number.isFinite(GAMES) || GAMES < 1) throw new Error('bad --games');
 
+// bulk self-play discards every intermediate state; skip the freeze guard for throughput
+config.debug.freezeState = false;
+
 const content = loadContent();
 const baseline = structuredClone(config);
 

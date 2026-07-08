@@ -31,6 +31,9 @@ function argNum(name: string, dflt: number): number {
   if (!Number.isFinite(v)) throw new Error(`bad --${name}`);
   return v;
 }
+// bulk self-play discards every intermediate state; skip the freeze guard for throughput
+config.debug.freezeState = false;
+
 const GAMES = argNum('games', 200);
 const SEED0 = argNum('seed0', 1);
 const POLICY: BotPolicy = args.includes('random') ? randomBot : greedyBot;

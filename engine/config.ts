@@ -68,6 +68,11 @@ export interface GameConfig {
     fullMatches: number;
     partialMatches: number;
   };
+  debug: {
+    /** deep-freeze the state returned by createGame/applyCommand so external
+     * mutation throws instead of corrupting the log (off in bulk sims for speed) */
+    freezeState: boolean;
+  };
 }
 
 export const config: GameConfig = {
@@ -97,6 +102,7 @@ export const config: GameConfig = {
   },
   enemy: { moveSpeed: 1, damagePerNetHit: 1 },
   resolution: { fullMatches: 3, partialMatches: 2 },
+  debug: { freezeState: true },
 };
 
 export type Config = GameConfig;

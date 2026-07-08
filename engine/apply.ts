@@ -7,6 +7,7 @@ import type { GameState } from './model/state';
 import { activeHero, assertInvariants, getEnemy } from './model/state';
 import type { Rng } from './rng';
 import { config } from './config';
+import { deepFreeze } from './freeze';
 import { heroAttack } from './systems/combat';
 import { getCardDef, getSectionDef } from './model/content';
 import { getCard } from './model/state';
@@ -98,5 +99,6 @@ export function applyCommand(
   }
 
   assertInvariants(draft);
+  if (config.debug.freezeState) deepFreeze(draft);
   return { state: draft, events: ctx.events };
 }

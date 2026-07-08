@@ -6,6 +6,8 @@ import type { GameEvent } from './model/events';
 import type { GameState } from './model/state';
 import { gridKey } from './model/state';
 import type { Rng } from './rng';
+import { config } from './config';
+import { deepFreeze } from './freeze';
 import { startHeroTurn } from './systems/turn';
 
 export const SetupSchema = z.object({
@@ -96,5 +98,6 @@ export function createGame(content: ContentDB, setupRaw: unknown, rng: Rng): { s
   ctx.emit({ kind: 'RoundStarted', round: 1, startHeroIdx: 0 });
   startHeroTurn(ctx, 0);
 
+  if (config.debug.freezeState) deepFreeze(state);
   return { state, events: ctx.events };
 }

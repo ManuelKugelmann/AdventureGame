@@ -10,11 +10,19 @@ export function content(): ContentDB {
 
 export const DEFAULT_SETUP: Setup = { scenarioId: 'silent_abbey', heroClassIds: ['warden', 'shadowfoot'], seed: 42 };
 
+/**
+ * Fixture-creation entry point: hands tests a MUTABLE deep copy of a fresh game
+ * so they may hand-craft edge-case setups (`state.round = 16`, inject a card…).
+ * This is the only sanctioned thaw — `createGame`/`applyCommand` freeze their
+ * output (config.debug.freezeState), so any state produced during *execution*
+ * (an applyCommand result) stays frozen and mutating it throws. Deep-modify the
+ * setup here, never at execution.
+ */
 export function newGame(setup: Partial<Setup> = {}): { state: GameState; rng: Rng } {
   const full = { ...DEFAULT_SETUP, ...setup };
   const rng = makeRng(full.seed);
   const { state } = createGame(content(), full, rng);
-  return { state, rng };
+  return { state: structuredClone(state), rng };
 }
 
 /**
