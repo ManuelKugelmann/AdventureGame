@@ -12,7 +12,7 @@ import {
   type SectionDef,
 } from '../engine/index';
 import { useStore, legalForActive } from './store';
-import { classIcon, playerColor, zoneLabel } from './format';
+import { classIcon, enemyIcon, playerColor, zoneLabel } from './format';
 
 // custom cursor: a dashed 4-way move-arrow (stealth). Built-in `move` is the solid 4-way arrow for open moves.
 const SNEAK_ARROW_SVG =
@@ -443,7 +443,7 @@ export function Board(): JSX.Element {
                           }}
                         >
                           <Circle radius={11} fill={e.sleeper ? '#4e4668' : '#7d3434'} stroke={selected ? '#e8d44d' : '#222'} strokeWidth={selected ? 3 : 1} />
-                          <Text text={e.sleeper ? '💤' : (eDef?.name[0] ?? '?')} x={-5} y={-6} fontSize={11} fill="#e8dcc8" />
+                          <Text text={e.sleeper ? '💤' : enemyIcon(e.defId)} x={-11} y={-11} width={22} height={22} align="center" verticalAlign="middle" fontSize={12} />
                           <Text text={'♥'.repeat(remaining) + '♡'.repeat(e.stateIdx)} x={-12} y={12} fontSize={9} fill="#d98080" />
                           {/* alt-action: direct attack — one sword per AP spent, stacked above the enemy */}
                           {atkAps.map((ap, k) => (

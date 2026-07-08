@@ -7,6 +7,10 @@ export const zoneLabel = (id: string): string =>
 export const PLAYER_COLORS = ['#4f8fe0', '#5fc86a', '#e0b64f', '#b06fe0', '#4fd0d0', '#cfd8e0'] as const;
 export const playerColor = (idx: number): string => PLAYER_COLORS[idx % PLAYER_COLORS.length]!;
 
-/** Hero-class icons — monochrome text glyphs so they can be recoloured (unlike emoji). */
-const CLASS_ICON: Record<string, string> = { warden: '⛊', shadowfoot: '☾', lorekeeper: '✶' };
-export const classIcon = (classId: string): string => CLASS_ICON[classId] ?? '✦';
+/** Hero-class icons (emoji). */
+const CLASS_ICON: Record<string, string> = { warden: '🛡', shadowfoot: '🗡', lorekeeper: '📖' };
+export const classIcon = (classId: string): string => CLASS_ICON[classId] ?? '🎭';
+
+/** Enemy icons (emoji), keyed by enemy def id. */
+const ENEMY_ICON: Record<string, string> = { cultist: '🧎', ghoul: '🧟', shade: '👻', stone_golem: '🗿' };
+export const enemyIcon = (defId: string): string => ENEMY_ICON[defId] ?? '👹';
