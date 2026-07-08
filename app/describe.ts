@@ -88,7 +88,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'ExitPeeked':
       return ev.throughBlocker ? `You peer through and scout what lies beyond` : undefined; // auto-peek: CardPlaced covers it
     case 'EnemyMoved':
-      return `An enemy shifts to ${zoneLabel(ev.section)}`;
+      return `An enemy moves to ${zoneLabel(ev.section)}`;
     case 'EnemyActed':
       return ev.action === 'investigate'
         ? `An enemy investigates`
