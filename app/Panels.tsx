@@ -7,7 +7,7 @@ import {
   type Theory,
 } from '../engine/index';
 import { legalForActive, useStore } from './store';
-import { classIcon, playerColor } from './format';
+import { classIcon, playerColor, zoneLabel } from './format';
 
 /** a line of filled + empty hearts, e.g. 7/8 → ♥♥♥♥♥♥♥♡ */
 const hearts = (hp: number, max: number): string =>
@@ -122,8 +122,8 @@ export function CluesPanel(): JSX.Element | null {
       </h3>
       {aspects.map((a) => (
         <div key={a} className="clue-row" title={`The ${a} of the crime — ${state.clues[a] ? 'revealed' : 'still unknown; find it via clue tokens'}.`}>
-          <span className="clue-aspect">{a}</span>
-          <span>{state.clues[a] ?? '???'}</span>
+          <span className="clue-aspect">{zoneLabel(a)}</span>
+          <span>{state.clues[a] ? zoneLabel(state.clues[a]!) : '???'}</span>
         </div>
       ))}
     </div>
@@ -200,10 +200,10 @@ export function ResolutionPanel(): JSX.Element | null {
       <h3>⚖ Name the guilty</h3>
       {aspects.map((a) => (
         <select key={a} value={chosen[a]} onChange={(e) => setTheory((t) => ({ ...t, [a]: e.target.value }))}>
-          <option value="">— {a} —</option>
+          <option value="">— {zoneLabel(a)} —</option>
           {scenario.solution[a].map((v) => (
             <option key={v} value={v}>
-              {v}{state.clues[a] === v ? ' ✓' : ''}
+              {zoneLabel(v)}{state.clues[a] === v ? ' ✓' : ''}
             </option>
           ))}
         </select>

@@ -25,11 +25,11 @@ export function roundStartAlertTick(ctx: Ctx): void {
     const { fromThree, fromTwo, fromOne } = config.alert.deescalateEmptyRounds;
     const cleared = enemiesOn(ctx.draft, cardId).length === 0;
     if (card.alert === 3 && cleared && emptyRounds >= fromThree) {
-      ctx.emit({ kind: 'AlertChanged', cardId, from: 3, to: 2, reason: 'de-escalation' });
+      ctx.emit({ kind: 'AlertChanged', cardId, from: 3, to: 2, reason: `quiet ${emptyRounds} rounds` });
     } else if (card.alert === 2 && emptyRounds >= fromTwo) {
-      ctx.emit({ kind: 'AlertChanged', cardId, from: 2, to: 1, reason: 'de-escalation' });
+      ctx.emit({ kind: 'AlertChanged', cardId, from: 2, to: 1, reason: `quiet ${emptyRounds} rounds` });
     } else if (card.alert === 1 && emptyRounds >= fromOne) {
-      ctx.emit({ kind: 'AlertChanged', cardId, from: 1, to: 0, reason: 'de-escalation' });
+      ctx.emit({ kind: 'AlertChanged', cardId, from: 1, to: 0, reason: `quiet ${emptyRounds} rounds` });
     }
   }
 }

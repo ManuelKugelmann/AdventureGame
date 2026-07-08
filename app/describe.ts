@@ -26,7 +26,9 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'ExitWalled':
       return `The way is walled off.`;
     case 'AlertChanged':
-      return `Alert ${ev.from}→${ev.to} (${ev.reason})`;
+      return ev.to < ev.from
+        ? `Alert calms ${ev.from}→${ev.to} (${ev.reason})`
+        : `Alert rises ${ev.from}→${ev.to} (${ev.reason})`;
     case 'HeroDetected':
       return `${heroName(ev.heroIdx)} is out in the open (${ev.reason})`;
     case 'HeroHidden':
@@ -64,13 +66,13 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
       return card ? `📖 ${card.text}` : undefined;
     }
     case 'ClueRevealed':
-      return `CLUE — ${ev.aspect.toUpperCase()}: ${ev.value}`;
+      return `CLUE — ${ev.aspect.toUpperCase()}: ${zoneLabel(ev.value)}`;
     case 'PhaseAdvanced':
       return `— The story darkens (phase ${ev.toPhaseIdx + 1}) —`;
     case 'ResolutionUnlocked':
       return `You may now name the guilty (Resolution unlocked)`;
     case 'ResolutionCommitted':
-      return `Accusation: ${ev.theory.who} / ${ev.theory.where} / ${ev.theory.how} — ${ev.matches}/3 correct`;
+      return `Accusation: ${zoneLabel(ev.theory.who)} / ${zoneLabel(ev.theory.where)} / ${zoneLabel(ev.theory.how)} — ${ev.matches}/3 correct`;
     case 'GameEnded':
       return ev.outcome.kind === 'win' ? `☀ VICTORY (${ev.outcome.detail})` : `☠ DEFEAT (${ev.outcome.detail})`;
     case 'TurnEnded':
