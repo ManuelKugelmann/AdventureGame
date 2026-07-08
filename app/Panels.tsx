@@ -44,7 +44,7 @@ export function HeroPanel(): JSX.Element | null {
                 `move a zone — ${config.costs.moveSection} AP`,
                 `cross an exit — ${config.costs.crossExit} AP`,
                 `inspect ❖ — ${config.costs.inspect} AP`,
-                `re-hide — ${config.costs.reHide} AP`,
+                `hide — ${config.costs.reHide} AP`,
                 `attack — 1–${config.costs.attackMaxAp} AP (more AP = more dice)`,
                 '',
                 'refills each turn: class base + dice roll',
@@ -144,8 +144,8 @@ export function ActionsPanel(): JSX.Element | null {
           </button>
         ))}
         {rehide && (
-          <button title="Spend 1 AP to slip back into hiding (needs no awake enemy in your section)." onClick={() => store.dispatch(rehide)}>
-            🫥 Re-hide (1 AP)
+          <button title="Spend 1 AP to slip into hiding (needs no awake enemy in your section)." onClick={() => store.dispatch(rehide)}>
+            🫥 Hide (1 AP)
           </button>
         )}
         <button className="end-turn" title="End this hero's turn and pass to the next player." onClick={() => store.dispatch({ kind: 'EndTurn' })}>
