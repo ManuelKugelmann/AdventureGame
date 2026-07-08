@@ -262,6 +262,7 @@ export function Board(): JSX.Element {
                   !!hero && hero.cardId === card.id &&
                   legal.some((c) => (c.kind === 'MoveSection' && c.toSection === sDef.id) || (c.kind === 'StealthMove' && c.route[0] === sDef.id));
                 const stealthCmd = hero && hero.cardId === card.id ? legal.find((c) => c.kind === 'StealthMove' && c.route[0] === sDef.id) : undefined;
+                const rehideCmd = hero && hero.cardId === card.id && hero.section === sDef.id ? legal.find((c) => c.kind === 'ReHide') : undefined;
                 const canCrossHere =
                   !!hero && hero.cardId !== card.id &&
                   legal.some((c) => c.kind === 'CrossExit' && state.cards[hero.cardId]?.exploredExits[c.exitIdx] === card.id);
@@ -309,13 +310,11 @@ export function Board(): JSX.Element {
                         />
                       );
                     })}
-                    {/* alt-action: sneak into this zone (default click moves openly) */}
+                    {/* alt-action: sneak into this zone — a dashed move-arrow (dashed = hidden, like the hero ring) */}
                     {stealthCmd && (
-                      <Text
-                        text="🌫️"
-                        x={geom.w / 2 - 9}
-                        y={2}
-                        fontSize={15}
+                      <Group
+                        x={geom.w - 24}
+                        y={4}
                         {...showTip('Stealth move here.\nRoll vs alert; slip in unseen if you succeed.', `sneak (${config.costs.moveSection} AP)`)}
                         onClick={(evt) => {
                           evt.cancelBubble = true;
@@ -324,6 +323,29 @@ export function Board(): JSX.Element {
                         onTap={(evt) => {
                           evt.cancelBubble = true;
                           store.dispatch(stealthCmd);
+                        }}
+                      >
+                        <Line points={[0, 6, 12, 6]} stroke="#86e0a0" strokeWidth={1.6} dash={[3, 2]} />
+                        <Line points={[8, 2, 12, 6, 8, 10]} stroke="#86e0a0" strokeWidth={1.6} dash={[3, 2]} lineJoin="round" />
+                      </Group>
+                    )}
+                    {/* alt-action: hide in place — a dashed circle, matching the hidden hero ring */}
+                    {rehideCmd && (
+                      <Circle
+                        x={geom.w - 16}
+                        y={9}
+                        radius={7}
+                        stroke="#86e0a0"
+                        strokeWidth={1.6}
+                        dash={[3, 2]}
+                        {...showTip('Hide in place.\nRoll vs alert; needs no awake enemy here.', `hide (${config.costs.reHide} AP)`)}
+                        onClick={(evt) => {
+                          evt.cancelBubble = true;
+                          store.dispatch(rehideCmd);
+                        }}
+                        onTap={(evt) => {
+                          evt.cancelBubble = true;
+                          store.dispatch(rehideCmd);
                         }}
                       />
                     )}
@@ -466,7 +488,7 @@ export function Board(): JSX.Element {
                             fill={h.idx === state.activeHeroIdx ? '#2d6a4f' : '#40556a'}
                             stroke={h.detected ? '#5a6a7a' : '#86e0a0'}
                             strokeWidth={2.5}
-                            dash={h.detected ? undefined : [3, 3]}
+                            dash={h.detected ? undefined : [3, 2]}
                           />
                           <Text text={`${h.idx + 1}`} x={-4} y={-7} fontSize={13} fontStyle="bold" fill="#fff" />
                         </Group>
