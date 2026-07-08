@@ -71,6 +71,11 @@ export function applyEventMut(draft: GameState, ev: GameEvent): void {
     case 'ExitOpened':
       getCard(draft, ev.cardId).openedExits.push(ev.exitIdx);
       break;
+    case 'ExitClosed': {
+      const c = getCard(draft, ev.cardId);
+      c.openedExits = c.openedExits.filter((i) => i !== ev.exitIdx);
+      break;
+    }
     case 'ExitPeeked':
       break; // info only; the reveal itself is CardPlaced/ExitLinked/ExitWalled
 

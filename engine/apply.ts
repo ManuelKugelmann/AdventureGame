@@ -11,7 +11,7 @@ import { deepFreeze } from './freeze';
 import { heroAttack } from './systems/combat';
 import { getCardDef, getSectionDef } from './model/content';
 import { getCard } from './model/state';
-import { crossExit, moveSection, openExit, peekExit, reHide, stealthMove } from './systems/movement';
+import { closeExit, crossExit, moveSection, openExit, peekExit, reHide, stealthMove } from './systems/movement';
 import { resolveInspect } from './systems/mystery';
 import { commitResolution } from './systems/resolution';
 import { endTurn } from './systems/turn';
@@ -59,6 +59,10 @@ export function applyCommand(
     case 'OpenExit':
       needAp(config.costs.crossExit);
       openExit(ctx, heroIdx, cmd.exitIdx);
+      break;
+    case 'CloseExit':
+      needAp(config.costs.crossExit);
+      closeExit(ctx, heroIdx, cmd.exitIdx);
       break;
     case 'StealthMove':
       needAp(config.costs.moveSection);

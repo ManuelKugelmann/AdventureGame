@@ -79,6 +79,8 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
       return `Passage links to an explored area`;
     case 'ExitOpened':
       return `A door swings open`;
+    case 'ExitClosed':
+      return `A door is pulled shut`;
     case 'ExitPeeked':
       return ev.throughBlocker ? `You peer through and scout what lies beyond` : undefined; // auto-peek: CardPlaced covers it
     case 'EnemyMoved':

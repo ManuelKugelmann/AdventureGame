@@ -108,6 +108,19 @@ export function openExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
   peekFromZone(ctx, heroIdx); // an opened door reveals what's beyond
 }
 
+/** Shut an opened door again (e.g. to block pursuers). The card beyond stays revealed. */
+export function closeExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
+  const hero = getHero(ctx.draft, heroIdx);
+  const card = getCard(ctx.draft, hero.cardId);
+  const exit = getCardDef(ctx.content, card.defId).topExits[exitIdx];
+  if (!exit) throw new Error(`CloseExit: no exit ${exitIdx}`);
+  if (exit.section !== hero.section) throw new Error('CloseExit: hero not at the exit');
+  if (!exit.blocker?.openable) throw new Error('CloseExit: nothing closeable here');
+  if (!card.openedExits.includes(exitIdx)) throw new Error('CloseExit: already shut');
+  ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.crossExit });
+  ctx.emit({ kind: 'ExitClosed', cardId: card.id, exitIdx });
+}
+
 /** Reveal what lies beyond an unexplored exit. Returns the card id, or undefined if walled. */
 function exploreExit(ctx: Ctx, fromCardId: string, exitIdx: number): string | undefined {
   const card = getCard(ctx.draft, fromCardId);

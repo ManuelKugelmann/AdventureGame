@@ -22,6 +22,7 @@ export type GameEvent =
   | { kind: 'ExitLinked'; cardId: string; exitIdx: number; toCardId: string }
   | { kind: 'ExitWalled'; cardId: string; exitIdx: number }
   | { kind: 'ExitOpened'; cardId: string; exitIdx: number }
+  | { kind: 'ExitClosed'; cardId: string; exitIdx: number }
   | { kind: 'ExitPeeked'; cardId: string; exitIdx: number; throughBlocker: boolean }
   | { kind: 'TilePoolDrawn'; tier: 1 | 2; defId: string }
   // alert

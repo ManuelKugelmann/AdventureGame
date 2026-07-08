@@ -61,6 +61,17 @@ describe('openable door', () => {
     const r3 = applyCommand(content(), r2.state, { kind: 'CrossExit', exitIdx: 0 }, makeRng(3));
     expect(r3.state.heroes[0]!.cardId).not.toBe('cD'); // now crossed
   });
+
+  it('an opened door can be shut again', () => {
+    const { state } = newGame({ heroClassIds: ['warden'] });
+    injectCard(state, 'cD', 'dormitory', 1, 0);
+    standAt(state, 'cD', 'stair');
+    const r1 = applyCommand(content(), state, { kind: 'OpenExit', exitIdx: 0 }, makeRng(1));
+    expect(legalCommands(content(), r1.state).some((c) => c.kind === 'CloseExit' && c.exitIdx === 0)).toBe(true);
+    const r2 = applyCommand(content(), r1.state, { kind: 'CloseExit', exitIdx: 0 }, makeRng(2));
+    expect(r2.state.cards['cD']!.openedExits).not.toContain(0); // shut again
+    expect(() => applyCommand(content(), r2.state, { kind: 'CrossExit', exitIdx: 0 }, makeRng(3))).toThrow();
+  });
 });
 
 describe('permanent grate', () => {

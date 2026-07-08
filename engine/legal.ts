@@ -36,6 +36,7 @@ export function legalCommands(content: ContentDB, state: GameState): Command[] {
     const revealed = card.exploredExits[exitIdx] !== undefined;
     if (isExitCrossable(exit, opened, false) && hero.ap >= config.costs.crossExit) out.push({ kind: 'CrossExit', exitIdx: idx });
     if (exit.blocker?.openable && !opened && hero.ap >= config.costs.crossExit) out.push({ kind: 'OpenExit', exitIdx: idx });
+    if (exit.blocker?.openable && opened && hero.ap >= config.costs.crossExit) out.push({ kind: 'CloseExit', exitIdx: idx });
     if (exit.blocker && !revealed && hero.ap >= config.costs.inspect) out.push({ kind: 'PeekExit', exitIdx: idx });
   });
 
