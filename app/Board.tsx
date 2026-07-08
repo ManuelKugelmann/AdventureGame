@@ -90,18 +90,17 @@ export function Board(): JSX.Element {
     const s = e.target.getStage();
     if (s) s.container().style.cursor = c;
   };
-  // info = the descriptive box; action = what a click does (label sits at the pointer). action ⇒ clickable ⇒ hand cursor
-  const showTip = (info: string, action?: string) => ({
-    onMouseEnter: (e: KonvaEventObject<MouseEvent>) => {
+  // info = the descriptive box; action = what a click does. cancelBubble makes the innermost shape under the cursor
+  // win; we DON'T clear on leave (the outer shape re-asserts via its own onMouseMove, and the Stage clears over empty
+  // space) — otherwise leaving a nested icon blanks the outer tooltip.
+  const showTip = (info: string, action?: string) => {
+    const set = (e: KonvaEventObject<MouseEvent>): void => {
+      e.cancelBubble = true;
       setTip({ info, action, x: e.evt.clientX, y: e.evt.clientY });
-      if (action) setCursor(e, 'pointer');
-    },
-    onMouseMove: (e: KonvaEventObject<MouseEvent>) => setTip((t) => (t ? { ...t, x: e.evt.clientX, y: e.evt.clientY } : t)),
-    onMouseLeave: (e: KonvaEventObject<MouseEvent>) => {
-      setTip(null);
-      if (action) setCursor(e, 'grab'); // back to the pannable-board cursor
-    },
-  });
+      setCursor(e, action ? 'pointer' : 'grab');
+    };
+    return { onMouseEnter: set, onMouseMove: set };
+  };
 
   const tryMove = (cardId: string, sectionId: string): void => {
     if (!hero) return;
@@ -158,24 +157,27 @@ export function Board(): JSX.Element {
       onMouseUp={(e) => setCursor(e, 'grab')}
       onDragStart={(e) => setCursor(e, 'grabbing')}
       onDragEnd={(e) => setCursor(e, 'grab')}
+      onMouseMove={(e) => {
+        if (e.target === e.target.getStage()) setTip(null); // over empty space between cards
+      }}
+      onMouseLeave={() => setTip(null)}
     >
       <Layer>
         {cards.map((card) => {
           const def = getCardDef(content, card.defId);
           const { x, y } = cardXY(card);
           const geoms = sectionGeoms(content, card);
+          const cardInfo = [
+            `${def.name}`,
+            `Alert ${card.alert}/3${card.alert === 0 ? ' (calm)' : ''}`,
+            'Higher alert = harder stealth, more encounters.',
+            'The dots at right show the level.',
+          ].join('\n');
           return (
             <Group key={card.id} x={x} y={y}>
-              <Rect width={CARD_W} height={CARD_H} fill="#1e2420" stroke="#5a6b5a" strokeWidth={2} cornerRadius={10} />
-              <Text
-                text={def.name}
-                x={10}
-                y={6}
-                fontSize={14}
-                fontStyle="bold"
-                fill="#d8d2b8"
-                {...showTip([`${def.name}`, `Alert ${card.alert}/3${card.alert === 0 ? ' (calm)' : ''}`, 'Higher alert = harder stealth, more encounters.', 'The dots at right show the level.'].join('\n'))}
-              />
+              {/* card background also carries the card tooltip so empty areas re-assert it */}
+              <Rect width={CARD_W} height={CARD_H} fill="#1e2420" stroke="#5a6b5a" strokeWidth={2} cornerRadius={10} {...showTip(cardInfo)} />
+              <Text text={def.name} x={10} y={6} fontSize={14} fontStyle="bold" fill="#d8d2b8" {...showTip(cardInfo)} />
               {/* alert pips */}
               {[0, 1, 2, 3].map((i) => (
                 <Circle
@@ -310,7 +312,7 @@ export function Board(): JSX.Element {
                     {/* alt-action: sneak into this zone (default click moves openly) */}
                     {stealthCmd && (
                       <Text
-                        text="🥿"
+                        text="🥷"
                         x={geom.w / 2 - 9}
                         y={2}
                         fontSize={15}
