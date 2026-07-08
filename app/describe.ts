@@ -34,7 +34,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'StealthRolled':
       return `Stealth roll${dice(ev.roll)}: ${hits(ev.roll.hits)}, budget ${ev.budget} vs cost ${ev.cost} — ${ev.success ? 'unseen' : 'FAILED'}`;
     case 'AttackRolled':
-      return `Attack${dice(ev.roll)}: ${hits(ev.roll.hits)} → ${ev.netHits} dmg`;
+      return `${heroName(ev.heroIdx)} attacks for ${ev.ap}⚡${dice(ev.roll)}: ${hits(ev.roll.hits)} → ${ev.netHits} dmg`;
     case 'EnemyStateSwapped':
       return `Enemy wounded (state ${ev.fromStateIdx}→${ev.toStateIdx})`;
     case 'EnemyDefeated':
@@ -76,7 +76,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'TurnEnded':
       return `${heroName(ev.heroIdx)} ends turn`;
     case 'ApSpent':
-      return `${heroName(ev.heroIdx)} spends ${ev.amount}⚡`;
+      return undefined; // the action's own line carries the cost (e.g. "attacks for N⚡")
     case 'ApGained':
       return `${heroName(ev.heroIdx)} gains ${ev.amount}⚡`;
     case 'ExitLinked':

@@ -33,7 +33,7 @@ export type GameEvent =
   | { kind: 'HeroHidden'; heroIdx: number }
   | { kind: 'StealthRolled'; heroIdx: number; roll: DiceRoll; budget: number; cost: number; success: boolean }
   // combat
-  | { kind: 'AttackRolled'; heroIdx: number; targetId: string; roll: DiceRoll; netHits: number }
+  | { kind: 'AttackRolled'; heroIdx: number; targetId: string; ap: number; roll: DiceRoll; netHits: number }
   | { kind: 'EnemyStateSwapped'; enemyId: string; fromStateIdx: number; toStateIdx: number }
   | { kind: 'EnemyDefeated'; enemyId: string }
   | { kind: 'EnemyAttackRolled'; enemyId: string; heroIdx: number; roll: DiceRoll; netHits: number }

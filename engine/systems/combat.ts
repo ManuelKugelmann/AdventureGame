@@ -33,7 +33,7 @@ export function heroAttack(ctx: Ctx, heroIdx: number, targetId: string, ap: numb
   if (!enemyState) throw new Error(`invariant: enemy ${targetId} stateIdx ${target.stateIdx} out of range`);
   const defTotal = enemyState.def + coverDefMod(ctx, target.cardId, target.section);
   const netHits = roll.hits === 0 ? 0 : Math.max(0, roll.hits - Math.max(0, defTotal));
-  ctx.emit({ kind: 'AttackRolled', heroIdx, targetId, roll, netHits });
+  ctx.emit({ kind: 'AttackRolled', heroIdx, targetId, ap, roll, netHits });
 
   // attacking is loud: attacker is detected regardless of outcome
   detectHero(ctx, heroIdx, 'attacked');
