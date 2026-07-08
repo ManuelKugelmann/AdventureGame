@@ -5,7 +5,7 @@ body {
   color: #d8d2b8;
   font-family: Georgia, 'Times New Roman', serif;
 }
-.app { display: flex; flex-direction: column; min-height: 100vh; }
+.app { display: flex; flex-direction: column; min-height: 100vh; user-select: none; } /* no text I-beam */
 
 header {
   display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
@@ -27,8 +27,9 @@ button {
 button:hover:not(:disabled) { background: #33493a; }
 button:disabled { opacity: 0.45; cursor: default; }
 
-main { display: flex; flex: 1; gap: 12px; padding: 12px 18px; align-items: flex-start; flex-wrap: wrap; }
+main { display: flex; flex: 1; gap: 8px; padding: 6px; align-items: flex-start; flex-wrap: wrap; }
 .board-wrap { position: relative; border: 1px solid #2c352c; border-radius: 8px; background: #10150f; overflow: hidden; }
+.board-stage { cursor: grab; } /* pannable board; shapes override to a hand on hover */
 .board-stage { cursor: grab; }
 .board-empty { width: 900px; height: 560px; display: grid; place-items: center; color: #777; }
 

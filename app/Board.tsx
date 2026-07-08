@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Stage, Layer, Group, Rect, Text, Line, Circle } from 'react-konva';
+import type { KonvaEventObject } from 'konva/lib/Node';
 import {
+  config,
   getCardDef,
   getHeroClassDef,
   type CardInstance,
@@ -72,15 +74,32 @@ export function Board(): JSX.Element {
   const { content, state } = store;
   const legal = useMemo(() => legalForActive(store), [store]);
   const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null);
+  const [vp, setVp] = useState({ w: 1280, h: 800 });
+  useEffect(() => {
+    const onResize = (): void => setVp({ w: window.innerWidth, h: window.innerHeight });
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   if (!content || !state) return <div className="board-empty">loading…</div>;
 
   const hero = state.heroes[state.activeHeroIdx];
 
-  /** hover-tooltip handlers for any Konva shape (tip follows the cursor) */
-  const showTip = (text: string) => ({
-    onMouseEnter: (e: { evt: MouseEvent }) => setTip({ text, x: e.evt.clientX, y: e.evt.clientY }),
-    onMouseMove: (e: { evt: MouseEvent }) => setTip({ text, x: e.evt.clientX, y: e.evt.clientY }),
-    onMouseLeave: () => setTip(null),
+  /** hover-tooltip handlers for any Konva shape; `clickable` shows a hand cursor */
+  const setCursor = (e: KonvaEventObject<MouseEvent>, c: string): void => {
+    const s = e.target.getStage();
+    if (s) s.container().style.cursor = c;
+  };
+  const showTip = (text: string, clickable = false) => ({
+    onMouseEnter: (e: KonvaEventObject<MouseEvent>) => {
+      setTip({ text, x: e.evt.clientX, y: e.evt.clientY });
+      if (clickable) setCursor(e, 'pointer');
+    },
+    onMouseMove: (e: KonvaEventObject<MouseEvent>) => setTip({ text, x: e.evt.clientX, y: e.evt.clientY }),
+    onMouseLeave: (e: KonvaEventObject<MouseEvent>) => {
+      setTip(null);
+      if (clickable) setCursor(e, 'grab'); // back to the pannable-board cursor
+    },
   });
 
   const tryMove = (cardId: string, sectionId: string): void => {
@@ -107,11 +126,17 @@ export function Board(): JSX.Element {
     if (cmd) store.dispatch(cmd);
   };
 
+  const tryInspect = (cardId: string, sectionId: string, slotIdx: number): void => {
+    if (!hero || hero.cardId !== cardId || hero.section !== sectionId) return;
+    const cmd = legal.find((c) => c.kind === 'Inspect' && c.slotIdx === slotIdx);
+    if (cmd) store.dispatch(cmd);
+  };
+
   const cards = Object.values(state.cards);
   const minX = Math.min(...cards.map((c) => cardXY(c).x));
   const maxY = Math.max(...cards.map((c) => cardXY(c).y));
-  const stageW = 900;
-  const stageH = 560;
+  const stageW = Math.max(480, vp.w - 16); // 100% viewport width
+  const stageH = Math.max(320, Math.round(vp.h * 0.5)); // 50% viewport height
 
   return (
     <>
@@ -122,6 +147,10 @@ export function Board(): JSX.Element {
       x={stageW / 2 - CARD_W / 2 - minX}
       y={stageH - CARD_H - 30 - maxY}
       className="board-stage"
+      onMouseDown={(e) => setCursor(e, 'grabbing')}
+      onMouseUp={(e) => setCursor(e, 'grab')}
+      onDragStart={(e) => setCursor(e, 'grabbing')}
+      onDragEnd={(e) => setCursor(e, 'grab')}
     >
       <Layer>
         {cards.map((card) => {
@@ -163,7 +192,7 @@ export function Board(): JSX.Element {
                 // anchor to the left/right brick above, never centered — even for a lone full-width exit
                 const exitX = exit.side === 'left' ? CARD_W * 0.25 : CARD_W * 0.75;
                 return (
-                  <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitTip)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
+                  <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitTip, true)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
                     {/* a plain triangle = an exit; a red bar = walled. Whether it's been explored is already visible from the card above. */}
                     <Line
                       points={walled ? [-10, 2, 10, 2] : [-9, 5, 0, -9, 9, 5]}
@@ -194,7 +223,7 @@ export function Board(): JSX.Element {
                   'Click to move here.',
                 ].join('\n');
                 return (
-                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip)} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
+                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip, true)} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
                     <Rect
                       width={geom.w}
                       height={geom.h}
@@ -206,10 +235,32 @@ export function Board(): JSX.Element {
                     />
                     <Text text={`${sDef.hiding ? '🌿 ' : ''}${zoneLabel(sDef.id)}`} x={5} y={4} fontSize={11} fill="#b8c4a8" width={geom.w - 10} ellipsis wrap="none" />
                     <Text text={`${COVER_GLYPH[sDef.cover]} · choke ${sDef.chokepoint}${sDef.capacity ? ` · cap ${sDef.capacity}` : ''}`} x={5} y={18} fontSize={10} fill="#8a967e" width={geom.w - 10} ellipsis wrap="none" />
-                    {/* mystery slots */}
-                    {sDef.slots.map((_, i) => (
-                      <Text key={i} text="❖" x={5 + i * 16} y={32} fontSize={13} fill={slotStates[i] ? '#4e584e' : '#7ec8e3'} />
-                    ))}
+                    {/* mystery slots — larger; click to inspect */}
+                    {sDef.slots.map((_, i) => {
+                      const used = slotStates[i];
+                      const slotTip = used
+                        ? 'Mystery cache ❖\nAlready searched.'
+                        : ['Mystery cache ❖', `Click to inspect (${config.costs.inspect} AP)`, 'Draws a token: item, clue, trap, or rune.'].join('\n');
+                      return (
+                        <Text
+                          key={i}
+                          text="❖"
+                          x={6 + i * 22}
+                          y={30}
+                          fontSize={19}
+                          fill={used ? '#4e584e' : '#7ec8e3'}
+                          {...showTip(slotTip, used ? false : true)}
+                          onClick={(evt) => {
+                            evt.cancelBubble = true;
+                            if (!used) tryInspect(card.id, sDef.id, i);
+                          }}
+                          onTap={(evt) => {
+                            evt.cancelBubble = true;
+                            if (!used) tryInspect(card.id, sDef.id, i);
+                          }}
+                        />
+                      );
+                    })}
                     {/* enemies */}
                     {enemiesHere.map((e, i) => {
                       const eDef = content.enemies[e.defId];
@@ -225,7 +276,7 @@ export function Board(): JSX.Element {
                           key={e.id}
                           x={15 + i * 26}
                           y={tokenY}
-                          {...showTip(enemyTip)}
+                          {...showTip(enemyTip, true)}
                           onClick={(evt) => {
                             evt.cancelBubble = true;
                             store.selectEnemy(selected ? undefined : e.id);
