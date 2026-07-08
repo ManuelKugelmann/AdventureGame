@@ -47,6 +47,10 @@ aside { display: flex; flex-direction: column; gap: 10px; width: 380px; max-widt
 .sneak-toggle { display: block; font-size: 12px; margin-bottom: 6px; color: #a8b598; }
 .turn-tag { font-size: 12px; font-weight: normal; color: #a8b598; }
 .hp-hearts { color: #d98080; letter-spacing: 1px; }
+.ap-pips { color: #e8c44d; letter-spacing: 1px; }
+.stacks { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.stack { font-size: 13px; color: #d8d2b8; white-space: nowrap; }
+.stack sub { font-size: 9px; color: #9aa88a; }
 
 /* board hover tooltip: floats at the pointer, never affects layout */
 .board-tip {

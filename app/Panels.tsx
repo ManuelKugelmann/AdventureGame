@@ -30,17 +30,42 @@ export function HeroPanel(): JSX.Element | null {
               `${def.name} — player ${h.idx + 1}`,
               `HP ${h.hp}/${def.hp}`,
               `${h.ap} action points left`,
-              h.downed ? 'Downed' : h.detected ? 'Detected by enemies' : 'Hidden from enemies',
+              h.downed ? 'Downed' : h.detected ? 'Detected' : 'Unseen',
               `Skills — combat ${def.skills.combat}, stealth ${def.skills.stealth}, magic ${def.skills.magic}, social ${def.skills.social}`,
             ].join('\n')}
           >
             <b>{h.idx + 1}. {def.name}</b>
             <span className="hp-hearts" title={`${h.hp}/${def.hp} HP`}> {hearts(h.hp, def.hp)}</span>
-            <span title={`${h.ap} action points remaining this turn`}> ⚡{h.ap} AP</span>
-            <span className={h.detected ? 'detected' : 'hidden-tag'}> {h.downed ? 'DOWN' : h.detected ? 'DETECTED' : 'hidden'}</span>
+            <span className="ap-pips" title={`${h.ap} action points remaining this turn`}> {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}</span>
+            <span className={h.detected ? 'detected' : 'hidden-tag'}> {h.downed ? 'DOWN' : h.detected ? 'DETECTED' : 'unseen'}</span>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+export function PoolsPanel(): JSX.Element | null {
+  const { content, state } = useStore();
+  if (!content || !state) return null;
+  const stacks = [
+    { sym: '🃏', tag: 'T1', n: state.tilePools.tier1.length, label: 'tier-1 tiles left to explore into' },
+    { sym: '🃏', tag: 'T2', n: state.tilePools.tier2.length, label: 'tier-2 tiles left (deeper rows)' },
+    { sym: '❖', tag: 'T1', n: state.mysteryPools.tier1.length, label: 'tier-1 mystery tokens left to draw' },
+    { sym: '❖', tag: 'T2', n: state.mysteryPools.tier2.length, label: 'tier-2 mystery tokens left' },
+    { sym: '📖', tag: '', n: state.phaseDecks[state.phaseIdx]?.length ?? 0, label: 'story cards left in the current phase deck' },
+    { sym: '☠', tag: '', n: state.encounterPool.length, label: 'encounter enemy types (drawn with replacement)' },
+  ];
+  return (
+    <div className="panel pools-panel">
+      <h3 title={'Draw stacks still on the table.\nWhen a tile pool empties, further exits wall off.'}>Stacks</h3>
+      <div className="stacks">
+        {stacks.map((s, i) => (
+          <span key={i} className="stack" title={`${s.n} ${s.label}`}>
+            {s.sym}{s.tag && <sub>{s.tag}</sub>} {s.n}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

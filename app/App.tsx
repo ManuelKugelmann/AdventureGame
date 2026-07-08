@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
-import { ActionsPanel, CluesPanel, HeroPanel, LogPanel, ResolutionPanel } from './Panels';
+import { ActionsPanel, CluesPanel, HeroPanel, LogPanel, PoolsPanel, ResolutionPanel } from './Panels';
 import { useStore } from './store';
 
 const MAX_PLAYERS = 6;
@@ -123,6 +123,7 @@ export function App(): JSX.Element {
           <ActionsPanel />
           <ResolutionPanel />
           <CluesPanel />
+          <PoolsPanel />
           <LogPanel />
         </aside>
       </main>
