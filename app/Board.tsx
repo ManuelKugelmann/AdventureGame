@@ -137,6 +137,14 @@ export function Board(): JSX.Element {
 
   const moveLabel = `move openly (${config.costs.moveSection}⚡)`;
 
+  const tryClimb = (cardId: string, aId: string, bId: string): void => {
+    if (!hero || hero.cardId !== cardId) return;
+    const to = hero.section === aId ? bId : hero.section === bId ? aId : undefined;
+    if (to === undefined) return; // hero isn't on this barrier
+    const cmd = legal.find((c) => c.kind === 'Climb' && c.toSection === to);
+    store.dispatch(cmd ?? { kind: 'Climb', toSection: to }); // dispatch anyway ⇒ engine surfaces feedback if it can't be met
+  };
+
   const cards = Object.values(state.cards);
   const minX = Math.min(...cards.map((c) => cardXY(c).x));
   const maxY = Math.max(...cards.map((c) => cardXY(c).y));
@@ -523,8 +531,21 @@ export function Board(): JSX.Element {
                   const ay = a.y + a.h / 2;
                   const bx = b.x + b.w / 2;
                   const by = b.y + b.h / 2;
+                  const heroOnBarrier = !!hero && hero.cardId === card.id && (hero.section === e.a || hero.section === e.b);
+                  const climbCmd = heroOnBarrier ? legal.find((c) => c.kind === 'Climb') : undefined;
                   return (
-                    <Group key={`bar${i}`} {...showTip(`${zoneLabel(e.a)} ↔ ${zoneLabel(e.b)} — needs ${e.requires}`)}>
+                    <Group
+                      key={`bar${i}`}
+                      {...showTip(`${zoneLabel(e.a)} ↔ ${zoneLabel(e.b)} — needs ${e.requires}`, climbCmd ? `${e.requires} (${config.costs.climb}⚡)` : undefined)}
+                      onClick={(evt) => {
+                        evt.cancelBubble = true;
+                        tryClimb(card.id, e.a, e.b);
+                      }}
+                      onTap={(evt) => {
+                        evt.cancelBubble = true;
+                        tryClimb(card.id, e.a, e.b);
+                      }}
+                    >
                       <Line points={[ax, ay, bx, by]} stroke="#8a6d3b" strokeWidth={2} dash={[4, 4]} />
                       <Text text={`⛰ ${e.requires}`} x={(ax + bx) / 2 - 16} y={(ay + by) / 2 - 6} fontSize={9} fill="#c8a86a" />
                     </Group>

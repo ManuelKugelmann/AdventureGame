@@ -270,6 +270,10 @@ export function brickAbove(row: number, col: number, side: Side): { row: number;
   return { row: row + 1, col: side === 'left' ? col - 1 : col };
 }
 
+/** Barrier requirements every hero can meet with no item (basic athletics). */
+export const BASIC_BARRIERS = new Set(['climb', 'jump']);
+export const canCrossBarrier = (requires: string): boolean => BASIC_BARRIERS.has(requires);
+
 /** Can a hero pass through this exit? Walled ⇒ no; open ⇒ yes; a door ⇒ only once opened; permanent ⇒ never. */
 export function isExitCrossable(exit: { blocker?: { openable: boolean } }, opened: boolean, walled: boolean): boolean {
   if (walled) return false;

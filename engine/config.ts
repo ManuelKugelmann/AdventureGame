@@ -24,6 +24,7 @@ export interface GameConfig {
     reHide: number;
     inspect: number;
     attackMaxAp: number;
+    climb: number;
   };
   alert: {
     min: number;
@@ -86,7 +87,7 @@ export interface GameConfig {
 export const config: GameConfig = {
   dice: { blankFaces: 3, hitFaces: 2, surgeFaces: 1 },
   turn: { apDice: 2, maxRoundsCeiling: 40 },
-  costs: { moveSection: 1, crossExit: 1, reHide: 1, inspect: 1, attackMaxAp: 3 },
+  costs: { moveSection: 1, crossExit: 1, reHide: 1, inspect: 1, attackMaxAp: 3, climb: 2 },
   alert: {
     min: 0,
     max: 3,

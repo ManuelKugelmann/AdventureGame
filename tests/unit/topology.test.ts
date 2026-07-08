@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjacentSections, applyCommand, sectionFull, type GameState, type Rng } from '../../engine/index';
+import { adjacentSections, applyCommand, makeRng, sectionFull, type GameState, type Rng } from '../../engine/index';
 import { content, newGame } from '../helpers';
 
 function injectCard(state: GameState, id: string, defId: string, row: number, col: number): void {
@@ -27,6 +27,29 @@ describe('overpass — disjoint halves', () => {
     expect(adjacentSections(content(), state, 'cO', 'south_ramp')).toEqual(['west_span']);
     expect(adjacentSections(content(), state, 'cO', 'north_ramp')).toEqual(['east_span']);
     expect(adjacentSections(content(), state, 'cO', 'west_span')).toEqual(['south_ramp']); // east_span excluded
+  });
+});
+
+describe('climb (barrier crossing)', () => {
+  it('crosses a climb barrier for AP', () => {
+    const { state } = newGame({ heroClassIds: ['warden'] });
+    injectCard(state, 'cO', 'overpass', 1, 0);
+    const h = state.heroes[0]!;
+    h.cardId = 'cO';
+    h.section = 'west_span';
+    h.ap = 5;
+    const res = applyCommand(content(), state, { kind: 'Climb', toSection: 'east_span' }, makeRng(1));
+    expect(res.state.heroes[0]!.section).toBe('east_span'); // climbed the barrier
+  });
+
+  it('rejects a climb where there is no barrier edge', () => {
+    const { state } = newGame({ heroClassIds: ['warden'] });
+    injectCard(state, 'cO', 'overpass', 1, 0);
+    const h = state.heroes[0]!;
+    h.cardId = 'cO';
+    h.section = 'south_ramp'; // south_ramp—west_span is a normal edge, not a barrier
+    h.ap = 5;
+    expect(() => applyCommand(content(), state, { kind: 'Climb', toSection: 'west_span' }, makeRng(1))).toThrow(/no barrier/);
   });
 });
 

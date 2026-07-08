@@ -1,6 +1,6 @@
 import { config } from '../config';
 import type { Ctx } from '../ctx';
-import { brickAbove, entryLanding, getCardDef, getHeroClassDef, getScenarioDef, getSectionDef, isExitCrossable } from '../model/content';
+import { brickAbove, canCrossBarrier, entryLanding, getCardDef, getHeroClassDef, getScenarioDef, getSectionDef, isExitCrossable } from '../model/content';
 import { enemiesOn, getCard, getHero, gridKey } from '../model/state';
 import { rollDice } from '../rng';
 import { raiseAlertFloor } from './alert';
@@ -104,6 +104,24 @@ export function openExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
   ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.crossExit });
   ctx.emit({ kind: 'ExitOpened', cardId: card.id, exitIdx });
   peekFromZone(ctx, heroIdx); // an opened door reveals what's beyond
+}
+
+/** Cross a barrier edge (climb/jump) to the linked zone. Throws with clear feedback if the requirement can't be met. */
+export function climb(ctx: Ctx, heroIdx: number, toSection: string): void {
+  const hero = getHero(ctx.draft, heroIdx);
+  const def = getCardDef(ctx.content, getCard(ctx.draft, hero.cardId).defId);
+  const edge = def.sectionEdges.find(
+    (e) => e.requires !== undefined && ((e.a === hero.section && e.b === toSection) || (e.b === hero.section && e.a === toSection)),
+  );
+  if (!edge || edge.requires === undefined) throw new Error(`Climb: no barrier between ${hero.section} and ${toSection}`);
+  if (!canCrossBarrier(edge.requires)) throw new Error(`Can't cross: you need ${edge.requires} (no one has it)`);
+  if (sectionBlocked(ctx.content, ctx.draft, hero.cardId, toSection)) throw new Error('Climb: destination is chokepoint-blocked');
+  if (sectionFull(ctx.content, ctx.draft, hero.cardId, toSection)) throw new Error('Climb: destination is at occupant capacity');
+  ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.climb });
+  ctx.emit({ kind: 'Moved', heroIdx, cardId: hero.cardId, section: toSection });
+  afterHeroEnters(ctx, heroIdx); // climbing openly ⇒ in the open
+  checkAmbushes(ctx, heroIdx);
+  peekFromZone(ctx, heroIdx);
 }
 
 /** Shut an opened door again (e.g. to block pursuers). The card beyond stays revealed. */

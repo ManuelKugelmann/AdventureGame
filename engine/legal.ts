@@ -1,6 +1,6 @@
 import { config } from './config';
 import type { ContentDB } from './model/content';
-import { getCardDef, getSectionDef, isExitCrossable } from './model/content';
+import { canCrossBarrier, getCardDef, getSectionDef, isExitCrossable } from './model/content';
 import type { Command } from './model/commands';
 import type { GameState } from './model/state';
 import { activeHero, enemiesOn, getCard } from './model/state';
@@ -25,6 +25,16 @@ export function legalCommands(content: ContentDB, state: GameState): Command[] {
       if (!sectionBlocked(content, state, hero.cardId, s) && !sectionFull(content, state, hero.cardId, s)) {
         out.push({ kind: 'MoveSection', toSection: s });
         out.push({ kind: 'StealthMove', route: [s] }); // sneak attempt is allowed from the open
+      }
+    }
+    // climb/jump across a barrier edge to the linked zone
+    if (hero.ap >= config.costs.climb) {
+      for (const e of def.sectionEdges) {
+        if (e.requires === undefined || !canCrossBarrier(e.requires)) continue;
+        const to = e.a === hero.section ? e.b : e.b === hero.section ? e.a : undefined;
+        if (to !== undefined && !sectionBlocked(content, state, hero.cardId, to) && !sectionFull(content, state, hero.cardId, to)) {
+          out.push({ kind: 'Climb', toSection: to });
+        }
       }
     }
   }
