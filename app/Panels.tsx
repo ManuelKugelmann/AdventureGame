@@ -36,7 +36,23 @@ export function HeroPanel(): JSX.Element | null {
           >
             <b>{h.idx + 1}. {def.name}</b>
             <span className="hp-hearts" title={`${h.hp}/${def.hp} HP`}> {hearts(h.hp, def.hp)}</span>
-            <span className="ap-pips" title={`${h.ap} action points remaining this turn`}> {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}</span>
+            <span
+              className="ap-pips"
+              title={[
+                `${h.ap} action points left this turn`,
+                '',
+                'AP costs:',
+                `Move a zone — ${config.costs.moveSection}`,
+                `Cross an exit — ${config.costs.crossExit}`,
+                `Inspect ❖ — ${config.costs.inspect}`,
+                `Re-hide — ${config.costs.reHide}`,
+                `Attack — 1–${config.costs.attackMaxAp} (more AP = more dice)`,
+                'Refills each turn: class base + dice roll.',
+              ].join('\n')}
+            >
+              {' '}
+              {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}
+            </span>
             <span className={h.downed ? 'downed-tag' : h.detected ? 'detected' : 'unseen-muted'}> {h.downed ? 'DOWN' : h.detected ? 'DETECTED' : 'unseen'}</span>
           </div>
         );

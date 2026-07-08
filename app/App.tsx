@@ -118,12 +118,14 @@ export function App(): JSX.Element {
             </div>
           )}
         </div>
-        <aside>
+        <aside className="state-col">
           <HeroPanel />
           <ActionsPanel />
           <ResolutionPanel />
           <CluesPanel />
           <PoolsPanel />
+        </aside>
+        <aside className="chronicle-col">
           <LogPanel />
         </aside>
       </main>
