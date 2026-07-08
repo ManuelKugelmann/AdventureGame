@@ -149,8 +149,10 @@ export function Board(): JSX.Element {
                 const exitTip = walled
                   ? 'This exit is walled off — the tile pool ran dry here.'
                   : `Exit to the ${exit.side} brick above${explored ? ' (already explored)' : ' — click to explore what lies beyond'}.`;
+                // anchor to the left/right brick above, never centered — even for a lone full-width exit
+                const exitX = exit.side === 'left' ? CARD_W * 0.25 : CARD_W * 0.75;
                 return (
-                  <Group key={exitIdx} x={geom.x + geom.w / 2} y={geom.y - 6} {...showTip(exitTip)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
+                  <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitTip)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
                     <Line
                       points={walled ? [-10, 2, 10, 2] : [-9, 4, 0, -8, 9, 4]}
                       closed={!walled}
