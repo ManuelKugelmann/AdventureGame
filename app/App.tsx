@@ -3,12 +3,52 @@ import { Board } from './Board';
 import { ActionsPanel, CluesPanel, HeroPanel, LogPanel, ResolutionPanel } from './Panels';
 import { useStore } from './store';
 
-const PARTIES: Record<string, string[]> = {
-  'Warden + Shadowfoot': ['warden', 'shadowfoot'],
-  'Solo Warden': ['warden'],
-  'Solo Shadowfoot': ['shadowfoot'],
-  'Full party (3)': ['warden', 'shadowfoot', 'lorekeeper'],
-};
+const MAX_PLAYERS = 4;
+
+/** Hot-seat party builder: 1–4 players, each picks a hero class (duplicates allowed). */
+function PartyBuilder(): JSX.Element | null {
+  const store = useStore();
+  const classIds = store.content ? Object.keys(store.content.heroes) : [];
+  if (!store.content || classIds.length === 0) return null;
+  const party = store.party;
+  const fallback = classIds[0]!; // content guarantees ≥1 hero class
+
+  return (
+    <div className="party-builder" aria-label="party">
+      <span className="party-label">players</span>
+      {party.map((classId, i) => (
+        <select
+          key={i}
+          aria-label={`player ${i + 1} class`}
+          value={classId}
+          onChange={(e) => store.setParty(party.map((c, j) => (j === i ? e.target.value : c)))}
+        >
+          {classIds.map((id) => (
+            <option key={id} value={id}>
+              {store.content!.heroes[id]?.name ?? id}
+            </option>
+          ))}
+        </select>
+      ))}
+      <button
+        className="party-btn"
+        title="add player"
+        disabled={party.length >= MAX_PLAYERS}
+        onClick={() => store.setParty([...party, fallback])}
+      >
+        ＋
+      </button>
+      <button
+        className="party-btn"
+        title="remove player"
+        disabled={party.length <= 1}
+        onClick={() => store.setParty(party.slice(0, -1))}
+      >
+        －
+      </button>
+    </div>
+  );
+}
 
 export function App(): JSX.Element {
   const store = useStore();
@@ -42,14 +82,7 @@ export function App(): JSX.Element {
             seed{' '}
             <input value={seedInput} size={8} onChange={(e) => setSeedInput(e.target.value)} />
           </label>
-          <select
-            onChange={(e) => store.setParty(PARTIES[e.target.value] ?? PARTIES['Warden + Shadowfoot']!)}
-            defaultValue="Warden + Shadowfoot"
-          >
-            {Object.keys(PARTIES).map((k) => (
-              <option key={k}>{k}</option>
-            ))}
-          </select>
+          <PartyBuilder />
           <button
             onClick={() => {
               const n = Number(seedInput);

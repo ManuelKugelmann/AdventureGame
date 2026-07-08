@@ -53,6 +53,8 @@ export function ActionsPanel(): JSX.Element | null {
   const legal = useMemo(() => legalForActive(store), [store]);
   if (!content || !state || state.outcome) return null;
 
+  const activeHero = state.heroes[state.activeHeroIdx];
+  const activeName = activeHero ? getHeroClassDef(content, activeHero.classId).name : `Hero ${state.activeHeroIdx + 1}`;
   const attacks = legal.filter((c): c is Extract<Command, { kind: 'Attack' }> => c.kind === 'Attack');
   const targetAttacks = store.selectedEnemyId ? attacks.filter((a) => a.targetId === store.selectedEnemyId) : attacks;
   const inspects = legal.filter((c) => c.kind === 'Inspect');
@@ -60,7 +62,7 @@ export function ActionsPanel(): JSX.Element | null {
 
   return (
     <div className="panel">
-      <h3>Actions — Hero {state.activeHeroIdx + 1}</h3>
+      <h3>▶ {activeName}'s turn <span className="turn-tag">(player {state.activeHeroIdx + 1})</span></h3>
       <label className="sneak-toggle">
         <input type="checkbox" checked={store.sneak} onChange={(e) => store.setSneak(e.target.checked)} />
         sneak (stealth moves)

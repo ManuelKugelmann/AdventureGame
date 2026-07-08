@@ -16,6 +16,10 @@ header h1 { font-size: 20px; margin: 0; color: #e3d9ad; }
 .toolbar input, .toolbar select {
   background: #1c231e; color: #d8d2b8; border: 1px solid #3c463c; padding: 4px 6px; border-radius: 4px;
 }
+.party-builder { display: flex; gap: 4px; align-items: center; }
+.party-label { font-size: 12px; color: #a8b598; margin-right: 2px; }
+.party-btn { padding: 4px 8px; line-height: 1; }
+.party-btn:disabled { opacity: 0.4; cursor: default; }
 button {
   background: #26382c; color: #e0d8b8; border: 1px solid #4a5c48;
   padding: 5px 10px; border-radius: 5px; cursor: pointer; font-family: inherit;
@@ -41,6 +45,7 @@ aside { display: flex; flex-direction: column; gap: 10px; width: 380px; max-widt
 .action-buttons { display: flex; flex-direction: column; gap: 5px; }
 .action-buttons .end-turn { background: #3b3323; }
 .sneak-toggle { display: block; font-size: 12px; margin-bottom: 6px; color: #a8b598; }
+.turn-tag { font-size: 12px; font-weight: normal; color: #a8b598; }
 .hint { font-size: 11px; color: #6f7d6b; margin-top: 6px; }
 
 .accuse select { width: 100%; margin-bottom: 5px; background: #1c231e; color: #d8d2b8; border: 1px solid #3c463c; padding: 4px; }

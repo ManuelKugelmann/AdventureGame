@@ -9,7 +9,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run preview',
+    command: 'npm run build && npm run preview', // always serve current code, not a stale dist
     url: 'http://localhost:4173/AdventureGame/',
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,

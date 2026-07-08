@@ -13,6 +13,8 @@ simulations (same shape as [FieldworkGame](https://github.com/ManuelKugelmann/Fi
   de-escalation/propagation/encounters, hidden/detected stealth, chokepoints, state-token combat,
   reactive enemy AI, mystery tokens (shortcuts + runes → symbol cards), phase decks, clue diary,
   and the who/where/how accusation endgame with a doom clock.
+- **Hot-seat, 1–4 players**: pick each player's hero class on startup (duplicates allowed), then
+  pass the shared screen — the active player's turn is named in the Actions panel.
 - **Human play**: click sections to move (sneak toggle for stealth), click ↑ arrows to explore,
   click enemies to attack, inspect ❖ slots, accuse when unlocked. Save/load via command-log replay.
 - **Bot play**: `🤖 Bot step` / `⏩ Bot autoplay` runs the greedy heuristic bot on the current game —
