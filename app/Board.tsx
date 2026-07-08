@@ -83,11 +83,21 @@ export function Board(): JSX.Element {
   });
 
   const tryMove = (cardId: string, sectionId: string): void => {
-    if (!hero || hero.cardId !== cardId) return;
-    const stealth = legal.find((c) => c.kind === 'StealthMove' && c.route[0] === sectionId);
-    const move = legal.find((c) => c.kind === 'MoveSection' && c.toSection === sectionId);
-    const cmd: Command | undefined = store.sneak && stealth ? stealth : (move ?? stealth);
-    if (cmd) store.dispatch(cmd);
+    if (!hero) return;
+    if (hero.cardId === cardId) {
+      // move within the current card
+      const stealth = legal.find((c) => c.kind === 'StealthMove' && c.route[0] === sectionId);
+      const move = legal.find((c) => c.kind === 'MoveSection' && c.toSection === sectionId);
+      const cmd: Command | undefined = store.sneak && stealth ? stealth : (move ?? stealth);
+      if (cmd) store.dispatch(cmd);
+      return;
+    }
+    // clicking a revealed neighbour card = cross the exit that leads there (no need to hit the ↑)
+    const fromCard = state.cards[hero.cardId];
+    const cross = legal.find(
+      (c) => c.kind === 'CrossExit' && fromCard?.exploredExits[c.exitIdx] === cardId,
+    );
+    if (cross) store.dispatch(cross);
   };
 
   const tryExit = (cardId: string, exitIdx: number): void => {
@@ -153,14 +163,14 @@ export function Board(): JSX.Element {
                 const exitX = exit.side === 'left' ? CARD_W * 0.25 : CARD_W * 0.75;
                 return (
                   <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitTip)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
+                    {/* a plain triangle = an exit; a red bar = walled. Whether it's been explored is already visible from the card above. */}
                     <Line
-                      points={walled ? [-10, 2, 10, 2] : [-9, 4, 0, -8, 9, 4]}
+                      points={walled ? [-10, 2, 10, 2] : [-9, 5, 0, -9, 9, 5]}
                       closed={!walled}
-                      fill={walled ? undefined : explored ? '#7a8f7a' : '#c9a227'}
-                      stroke={walled ? '#884444' : '#3a3'}
+                      fill={walled ? undefined : '#c9a227'}
+                      stroke={walled ? '#884444' : '#7a6a1e'}
                       strokeWidth={walled ? 4 : 1}
                     />
-                    {!walled && <Text text={`${exit.side === 'left' ? '↖' : '↗'}${explored ? '' : '?'}`} x={-8} y={-22} fontSize={13} fill="#c9c9a0" />}
                   </Group>
                 );
               })}
