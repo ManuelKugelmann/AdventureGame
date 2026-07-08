@@ -55,6 +55,7 @@ export function applyEventMut(draft: GameState, ev: GameEvent): void {
         blockedExits: [],
         exploredExits: {},
         sprungAmbushes: [],
+        openedExits: [],
       };
       draft.grid[gridKey(ev.row, ev.col)] = ev.cardId;
       getCard(draft, ev.fromCardId).exploredExits[ev.exitIdx] = ev.cardId;
@@ -67,6 +68,12 @@ export function applyEventMut(draft: GameState, ev: GameEvent): void {
     case 'ExitWalled':
       getCard(draft, ev.cardId).blockedExits.push(ev.exitIdx);
       break;
+    case 'ExitOpened':
+      getCard(draft, ev.cardId).openedExits.push(ev.exitIdx);
+      break;
+    case 'ExitPeeked':
+      break; // info only; the reveal itself is CardPlaced/ExitLinked/ExitWalled
+
     case 'TilePoolDrawn': {
       const pool = ev.tier === 1 ? draft.tilePools.tier1 : draft.tilePools.tier2;
       const idx = pool.indexOf(ev.defId);

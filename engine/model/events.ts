@@ -21,6 +21,8 @@ export type GameEvent =
   | { kind: 'CardPlaced'; cardId: string; defId: string; row: number; col: number; fromCardId: string; exitIdx: number }
   | { kind: 'ExitLinked'; cardId: string; exitIdx: number; toCardId: string }
   | { kind: 'ExitWalled'; cardId: string; exitIdx: number }
+  | { kind: 'ExitOpened'; cardId: string; exitIdx: number }
+  | { kind: 'ExitPeeked'; cardId: string; exitIdx: number; throughBlocker: boolean }
   | { kind: 'TilePoolDrawn'; tier: 1 | 2; defId: string }
   // alert
   | { kind: 'AlertChanged'; cardId: string; from: number; to: number; reason: string }

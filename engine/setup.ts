@@ -58,6 +58,7 @@ export function createGame(content: ContentDB, setupRaw: unknown, rng: Rng): { s
         blockedExits: [],
         exploredExits: {},
         sprungAmbushes: [],
+        openedExits: [],
       },
     },
     enemies: {},

@@ -1,5 +1,5 @@
 import type { ContentDB } from '../model/content';
-import { entryLanding, getCardDef, getSectionDef, normalEdges } from '../model/content';
+import { entryLanding, getCardDef, getSectionDef, isExitCrossable, normalEdges } from '../model/content';
 import type { GameState } from '../model/state';
 import { enemiesIn, getCard, occupantsIn } from '../model/state';
 import { config } from '../config';
@@ -37,17 +37,25 @@ export interface CardLink {
 export function linkedCards(content: ContentDB, state: GameState, cardId: string): CardLink[] {
   const out: CardLink[] = [];
   const defOf = (id: string) => getCardDef(content, getCard(state, id).defId);
-  for (const [exitIdxStr, toCardId] of Object.entries(getCard(state, cardId).exploredExits)) {
-    const exit = defOf(cardId).topExits[Number(exitIdxStr)];
+  // a revealed exit is only a walkable passage if it's actually crossable (peeked-through blockers aren't)
+  const crossable = (inst: ReturnType<typeof getCard>, exit: { blocker?: { openable: boolean } }, idx: number): boolean =>
+    isExitCrossable(exit, inst.openedExits.includes(idx), inst.blockedExits.includes(idx));
+  const here = getCard(state, cardId);
+  for (const [exitIdxStr, toCardId] of Object.entries(here.exploredExits)) {
+    const idx = Number(exitIdxStr);
+    const exit = defOf(cardId).topExits[idx];
     if (!exit) throw new Error(`card ${cardId} explored exit ${exitIdxStr} missing in def`);
+    if (!crossable(here, exit, idx)) continue;
     out.push({ toCardId, viaSection: exit.section, toSection: entryLanding(defOf(toCardId), exit.side).id });
   }
   for (const other of Object.values(state.cards)) {
     if (other.id === cardId) continue;
     for (const [exitIdxStr, toCardId] of Object.entries(other.exploredExits)) {
       if (toCardId !== cardId) continue;
-      const exit = defOf(other.id).topExits[Number(exitIdxStr)];
+      const idx = Number(exitIdxStr);
+      const exit = defOf(other.id).topExits[idx];
       if (!exit) throw new Error(`card ${other.id} explored exit ${exitIdxStr} missing in def`);
+      if (!crossable(other, exit, idx)) continue;
       // going back down: leave via the entry that matches the exit's side, arrive at its mouth
       out.push({ toCardId: other.id, viaSection: entryLanding(defOf(cardId), exit.side).id, toSection: exit.section });
     }

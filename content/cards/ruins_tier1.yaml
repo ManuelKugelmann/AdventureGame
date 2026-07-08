@@ -58,7 +58,7 @@ cards:
       - { a: altar, b: vestry }
     topExits:
       - { section: altar, side: right }
-      - { section: vestry, side: left }
+      - { section: vestry, side: left, blocker: { label: rusted iron grate, openable: false } }
     spawns:
       - { enemy: ghoul, section: nave }
 
@@ -117,7 +117,7 @@ cards:
       - { a: corridor, b: cells }
       - { a: corridor, b: stair }
     topExits:
-      - { section: stair, side: right }
+      - { section: stair, side: right, blocker: { label: barred stairway door, openable: true } }
     spawns:
       - { enemy: cultist, section: corridor }
 

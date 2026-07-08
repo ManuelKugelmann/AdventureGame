@@ -5,7 +5,7 @@ import { content, newGame } from '../helpers';
 function injectCard(state: GameState, id: string, defId: string, row: number, col: number): void {
   state.cards[id] = {
     id, defId, row, col, alert: 0, emptyRounds: 0, alertThreeRounds: 0,
-    usedSlots: {}, blockedExits: [], exploredExits: {}, sprungAmbushes: [],
+    usedSlots: {}, blockedExits: [], exploredExits: {}, sprungAmbushes: [], openedExits: [],
   };
   state.grid[`${row},${col}`] = id;
 }

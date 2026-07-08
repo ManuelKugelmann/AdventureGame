@@ -8,7 +8,7 @@ function linkedPair(): GameState {
   const { state } = newGame({ heroClassIds: ['warden'] });
   state.cards['c9'] = {
     id: 'c9', defId: 'old_well', row: 1, col: 0, alert: 0, emptyRounds: 0,
-    alertThreeRounds: 0, usedSlots: {}, blockedExits: [], exploredExits: {}, sprungAmbushes: [],
+    alertThreeRounds: 0, usedSlots: {}, blockedExits: [], exploredExits: {}, sprungAmbushes: [], openedExits: [],
   };
   state.grid['1,0'] = 'c9';
   state.cards['c0']!.exploredExits[0] = 'c9';

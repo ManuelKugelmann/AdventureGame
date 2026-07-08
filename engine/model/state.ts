@@ -23,6 +23,8 @@ export interface CardInstance {
   exploredExits: Record<number, string>;
   /** hiding-zone section ids whose ambush has already been rolled (spring once) */
   sprungAmbushes: string[];
+  /** exit indices whose (openable) door has been opened */
+  openedExits: number[];
 }
 
 export interface EnemyInstance {

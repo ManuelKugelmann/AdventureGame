@@ -77,10 +77,11 @@ export const greedyBot: BotPolicy = (content, state, rng) => {
     if (rehide && getCard(state, hero.cardId).alert >= 2) return rehide;
   }
 
-  // explore upward
-  const exits = byKind('CrossExit');
-  const exit = exits[0];
+  // explore upward — open a shut door if that's the only way on
+  const exit = byKind('CrossExit')[0];
   if (exit) return exit;
+  const openDoor = byKind('OpenExit')[0];
+  if (openDoor) return openDoor;
 
   // walk toward something useful: prefer stealth at high alert, normal move otherwise
   const moves = byKind('MoveSection');

@@ -1,6 +1,6 @@
 import { config } from './config';
 import type { ContentDB } from './model/content';
-import { getCardDef, getSectionDef } from './model/content';
+import { getCardDef, getSectionDef, isExitCrossable } from './model/content';
 import type { Command } from './model/commands';
 import type { GameState } from './model/state';
 import { activeHero, enemiesOn, getCard } from './model/state';
@@ -29,13 +29,15 @@ export function legalCommands(content: ContentDB, state: GameState): Command[] {
     }
   }
 
-  if (hero.ap >= config.costs.crossExit) {
-    def.topExits.forEach((exit, exitIdx) => {
-      if (exit.section === hero.section && !card.blockedExits.includes(exitIdx)) {
-        out.push({ kind: 'CrossExit', exitIdx: exitIdx as 0 | 1 });
-      }
-    });
-  }
+  def.topExits.forEach((exit, exitIdx) => {
+    if (exit.section !== hero.section || card.blockedExits.includes(exitIdx)) return;
+    const idx = exitIdx as 0 | 1;
+    const opened = card.openedExits.includes(exitIdx);
+    const revealed = card.exploredExits[exitIdx] !== undefined;
+    if (isExitCrossable(exit, opened, false) && hero.ap >= config.costs.crossExit) out.push({ kind: 'CrossExit', exitIdx: idx });
+    if (exit.blocker?.openable && !opened && hero.ap >= config.costs.crossExit) out.push({ kind: 'OpenExit', exitIdx: idx });
+    if (exit.blocker && !revealed && hero.ap >= config.costs.inspect) out.push({ kind: 'PeekExit', exitIdx: idx });
+  });
 
   if (hero.detected && hero.ap >= config.costs.reHide) {
     const enemiesHere = enemiesOn(state, hero.cardId).filter((e) => !e.sleeper && e.section === hero.section);

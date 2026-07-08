@@ -269,3 +269,10 @@ export function normalEdges(card: CardDef): { a: string; b: string }[] {
 export function brickAbove(row: number, col: number, side: Side): { row: number; col: number } {
   return { row: row + 1, col: side === 'left' ? col - 1 : col };
 }
+
+/** Can a hero pass through this exit? Walled ⇒ no; open ⇒ yes; a door ⇒ only once opened; permanent ⇒ never. */
+export function isExitCrossable(exit: { blocker?: { openable: boolean } }, opened: boolean, walled: boolean): boolean {
+  if (walled) return false;
+  if (!exit.blocker) return true;
+  return exit.blocker.openable && opened;
+}

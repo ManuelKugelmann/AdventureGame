@@ -77,6 +77,10 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
       return `${heroName(ev.heroIdx)} gains ${ev.amount} AP`;
     case 'ExitLinked':
       return `Passage links to an explored area`;
+    case 'ExitOpened':
+      return `A door swings open`;
+    case 'ExitPeeked':
+      return ev.throughBlocker ? `You peer through and scout what lies beyond` : undefined; // auto-peek: CardPlaced covers it
     case 'EnemyMoved':
       return `An enemy shifts to ${zoneLabel(ev.section)}`;
     case 'EnemyActed':

@@ -1,6 +1,6 @@
 import { config } from '../config';
 import type { Ctx } from '../ctx';
-import { brickAbove, entryLanding, getCardDef, getHeroClassDef, getScenarioDef, getSectionDef } from '../model/content';
+import { brickAbove, entryLanding, getCardDef, getHeroClassDef, getScenarioDef, getSectionDef, isExitCrossable } from '../model/content';
 import { getCard, getHero, gridKey } from '../model/state';
 import { rollDice } from '../rng';
 import { raiseAlertFloor } from './alert';
@@ -22,6 +22,7 @@ export function moveSection(ctx: Ctx, heroIdx: number, toSection: string): void 
   ctx.emit({ kind: 'Moved', heroIdx, cardId: hero.cardId, section: toSection });
   afterHeroEnters(ctx, heroIdx);
   checkAmbushes(ctx, heroIdx);
+  peekFromZone(ctx, heroIdx);
 }
 
 /**
@@ -38,6 +39,8 @@ export function crossExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
   if (!exit) throw new Error(`CrossExit: card ${card.defId} has no exit ${exitIdx}`);
   if (exit.section !== hero.section) throw new Error(`CrossExit: hero not in exit section ${exit.section}`);
   if (card.blockedExits.includes(exitIdx)) throw new Error('CrossExit: exit is walled');
+  if (!isExitCrossable(exit, card.openedExits.includes(exitIdx), false))
+    throw new Error(`CrossExit: blocked by ${exit.blocker?.label ?? 'a blocker'}`);
 
   ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.crossExit });
 
@@ -54,6 +57,55 @@ export function crossExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
   if (wasDetected) ctx.emit({ kind: 'HeroHidden', heroIdx }); // reset to hidden on card transition
   afterHeroEnters(ctx, heroIdx);
   checkAmbushes(ctx, heroIdx);
+  peekFromZone(ctx, heroIdx);
+}
+
+/**
+ * Auto-peek: standing in an exit's zone reveals (and fully populates) the card
+ * beyond any exit there that isn't blocked by a shut door — the design's
+ * see-ahead. Blocked exits stay hidden until deliberately peeked through.
+ */
+export function peekFromZone(ctx: Ctx, heroIdx: number): void {
+  const hero = getHero(ctx.draft, heroIdx);
+  const card = getCard(ctx.draft, hero.cardId);
+  const def = getCardDef(ctx.content, card.defId);
+  def.topExits.forEach((exit, exitIdx) => {
+    if (exit.section !== hero.section) return; // only exits in this zone
+    if (exit.blocker && !card.openedExits.includes(exitIdx)) return; // shut door / permanent
+    if (card.blockedExits.includes(exitIdx)) return; // walled
+    if (card.exploredExits[exitIdx] !== undefined) return; // already revealed
+    if (exploreExit(ctx, card.id, exitIdx) !== undefined)
+      ctx.emit({ kind: 'ExitPeeked', cardId: card.id, exitIdx, throughBlocker: false });
+  });
+}
+
+/** Peek through a blocker (keyhole / crack): reveal beyond without opening it. Costs an inspect. */
+export function peekExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
+  const hero = getHero(ctx.draft, heroIdx);
+  const card = getCard(ctx.draft, hero.cardId);
+  const exit = getCardDef(ctx.content, card.defId).topExits[exitIdx];
+  if (!exit) throw new Error(`PeekExit: no exit ${exitIdx}`);
+  if (exit.section !== hero.section) throw new Error('PeekExit: hero not at the exit');
+  if (!exit.blocker) throw new Error('PeekExit: no blocker to peek through');
+  if (card.blockedExits.includes(exitIdx)) throw new Error('PeekExit: exit is walled');
+  if (card.exploredExits[exitIdx] !== undefined) throw new Error('PeekExit: already revealed');
+  ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.inspect });
+  if (exploreExit(ctx, card.id, exitIdx) !== undefined)
+    ctx.emit({ kind: 'ExitPeeked', cardId: card.id, exitIdx, throughBlocker: true });
+}
+
+/** Open an openable door so it can be crossed; reveals beyond automatically. */
+export function openExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
+  const hero = getHero(ctx.draft, heroIdx);
+  const card = getCard(ctx.draft, hero.cardId);
+  const exit = getCardDef(ctx.content, card.defId).topExits[exitIdx];
+  if (!exit) throw new Error(`OpenExit: no exit ${exitIdx}`);
+  if (exit.section !== hero.section) throw new Error('OpenExit: hero not at the exit');
+  if (!exit.blocker?.openable) throw new Error('OpenExit: nothing openable here');
+  if (card.openedExits.includes(exitIdx)) throw new Error('OpenExit: already open');
+  ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.crossExit });
+  ctx.emit({ kind: 'ExitOpened', cardId: card.id, exitIdx });
+  peekFromZone(ctx, heroIdx); // an opened door reveals what's beyond
 }
 
 /** Reveal what lies beyond an unexplored exit. Returns the card id, or undefined if walled. */
@@ -154,7 +206,10 @@ export function stealthMove(ctx: Ctx, heroIdx: number, route: string[]): void {
     raiseAlertFloor(ctx, hero.cardId, config.alert.floorZoneShare, 'zone-share with committed enemy');
     resolveOneEnemyReaction(ctx, hero.cardId);
   }
-  if (reached > 0) checkAmbushes(ctx, heroIdx); // moving near a nook can spring it
+  if (reached > 0) {
+    checkAmbushes(ctx, heroIdx); // moving near a nook can spring it
+    peekFromZone(ctx, heroIdx);
+  }
 }
 
 /** Re-hide: 1 AP + stealth roll; needs no awake enemy in the section. */

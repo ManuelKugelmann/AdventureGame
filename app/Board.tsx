@@ -123,7 +123,11 @@ export function Board(): JSX.Element {
 
   const tryExit = (cardId: string, exitIdx: number): void => {
     if (!hero || hero.cardId !== cardId) return;
-    const cmd = legal.find((c) => c.kind === 'CrossExit' && c.exitIdx === exitIdx);
+    // prefer crossing; else open a shut door; else peek through a blocker
+    const cmd =
+      legal.find((c) => c.kind === 'CrossExit' && c.exitIdx === exitIdx) ??
+      legal.find((c) => c.kind === 'OpenExit' && c.exitIdx === exitIdx) ??
+      legal.find((c) => c.kind === 'PeekExit' && c.exitIdx === exitIdx);
     if (cmd) store.dispatch(cmd);
   };
 
@@ -189,22 +193,38 @@ export function Board(): JSX.Element {
                 if (!geom) return null;
                 const walled = card.blockedExits.includes(exitIdx);
                 const explored = card.exploredExits[exitIdx] !== undefined;
-                const exitInfo = walled
-                  ? 'This exit is walled off.\n(The tile pool ran dry here.)'
-                  : `Exit to the ${exit.side} brick above.${explored ? '\nAlready explored.' : ''}`;
-                const exitAction = walled ? undefined : explored ? 'Cross' : 'Explore';
+                const opened = card.openedExits.includes(exitIdx);
+                const blocker = exit.blocker;
+                const blocked = !!blocker && !opened;
+                let exitInfo: string;
+                let exitAction: string | undefined;
+                if (walled) {
+                  exitInfo = 'This exit is walled off.\n(The tile pool ran dry here.)';
+                  exitAction = undefined;
+                } else if (blocked && blocker) {
+                  exitInfo = `${blocker.label}\n${
+                    blocker.openable ? 'A shut door — open it to pass, or peek through.' : 'Sealed for good — you can only peek through.'
+                  }`;
+                  exitAction = blocker.openable ? `open (${config.costs.crossExit} AP)` : `peek through (${config.costs.inspect} AP)`;
+                } else {
+                  exitInfo = `Exit to the ${exit.side} brick above.${explored ? '\nAlready explored.' : ''}`;
+                  exitAction = explored ? 'cross' : 'explore';
+                }
                 // anchor to the left/right brick above, never centered — even for a lone full-width exit
                 const exitX = exit.side === 'left' ? CARD_W * 0.25 : CARD_W * 0.75;
                 return (
                   <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitInfo, exitAction)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
-                    {/* a plain triangle = an exit; a red bar = walled. Whether it's been explored is already visible from the card above. */}
+                    {/* triangle = exit; red bar = walled; door/grate glyph = blocked */}
                     <Line
                       points={walled ? [-10, 2, 10, 2] : [-9, 5, 0, -9, 9, 5]}
                       closed={!walled}
-                      fill={walled ? undefined : '#c9a227'}
+                      fill={walled ? undefined : blocked ? '#6b6b52' : '#c9a227'}
                       stroke={walled ? '#884444' : '#7a6a1e'}
                       strokeWidth={walled ? 4 : 1}
                     />
+                    {blocked && blocker && (
+                      <Text text={blocker.openable ? '🚪' : '▦'} x={-7} y={-24} fontSize={14} />
+                    )}
                   </Group>
                 );
               })}
