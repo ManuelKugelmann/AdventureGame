@@ -40,7 +40,12 @@ export function HeroPanel(): JSX.Element | null {
               <span className="hr-name">
                 <b style={{ color: playerColor(h.idx) }}>{h.idx + 1}</b> {classIcon(h.classId)} {def.name}
               </span>
-              <span className={`hr-status ${h.downed ? 'downed-tag' : h.detected ? 'open-muted' : 'hidden-mark'}`}>{h.downed ? 'DOWN' : h.detected ? 'in the open' : 'HIDDEN'}</span>
+              <span
+                className={`hr-status ${h.downed ? 'downed-tag' : h.detected ? 'open-muted' : 'hidden-mark'}`}
+                title={h.downed ? 'Downed' : h.detected ? 'In the open' : 'Hidden'}
+              >
+                {h.downed ? 'DOWN' : h.detected ? 'in the open' : 'HIDDEN'}
+              </span>
               <span
                 className="hr-ap ap-pips"
                 title={[
@@ -62,10 +67,10 @@ export function HeroPanel(): JSX.Element | null {
               <span className="hr-hp hp-hearts" title={`${h.hp}/${def.hp} HP`}>HP {hearts(h.hp, def.hp)}</span>
             </div>
             <div className="hr-line hr-skills" title="skills (inventory & armor systems not yet implemented)">
-              <span title="combat">⚔ {def.skills.combat >= 0 ? '+' : ''}{def.skills.combat}</span>
-              <span title="stealth">🌫 {def.skills.stealth >= 0 ? '+' : ''}{def.skills.stealth}</span>
-              <span title="magic">✨ {def.skills.magic >= 0 ? '+' : ''}{def.skills.magic}</span>
-              <span title="social">💬 {def.skills.social >= 0 ? '+' : ''}{def.skills.social}</span>
+              <span title="combat" style={{ color: '#d9a05f' }}>⚔ {def.skills.combat >= 0 ? '+' : ''}{def.skills.combat}</span>
+              <span title="stealth" style={{ color: '#6fc8c8' }}>🌫 {def.skills.stealth >= 0 ? '+' : ''}{def.skills.stealth}</span>
+              <span title="magic" style={{ color: '#b088e0' }}>✨ {def.skills.magic >= 0 ? '+' : ''}{def.skills.magic}</span>
+              <span title="social" style={{ color: '#7ec888' }}>💬 {def.skills.social >= 0 ? '+' : ''}{def.skills.social}</span>
             </div>
           </div>
         );

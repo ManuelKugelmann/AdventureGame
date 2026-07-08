@@ -14,12 +14,6 @@ import {
 import { useStore, legalForActive } from './store';
 import { classIcon, playerColor, zoneLabel } from './format';
 
-const COVER_HINT = {
-  open: 'exposed — easier to be spotted',
-  partial: 'scattered cover',
-  covered: 'well hidden — easier to stay unseen',
-} as const;
-
 // custom cursor: a dashed 4-way move-arrow (stealth). Built-in `move` is the solid 4-way arrow for open moves.
 const SNEAK_ARROW_SVG =
   "<svg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'><g fill='none' stroke='#5fbf7f' stroke-width='2' stroke-dasharray='3 2' stroke-linejoin='round'><path d='M13 4V22M4 13H22'/><path d='M10 7 13 4 16 7M10 19 13 22 16 19M7 10 4 13 7 16M19 10 22 13 19 16'/></g></svg>";
@@ -172,12 +166,7 @@ export function Board(): JSX.Element {
           const def = getCardDef(content, card.defId);
           const { x, y } = cardXY(card);
           const geoms = sectionGeoms(content, card);
-          const cardInfo = [
-            `${def.name}`,
-            `Alert ${card.alert}/3${card.alert === 0 ? ' (calm)' : ''}`,
-            'Higher alert = harder stealth, more encounters.',
-            'The dots at right show the level.',
-          ].join('\n');
+          const cardInfo = `${def.name}\n${def.biome} · tier ${def.tier}`;
           return (
             <Group key={card.id} x={x} y={y}>
               {/* card background also carries the card tooltip so empty areas re-assert it */}
@@ -194,6 +183,7 @@ export function Board(): JSX.Element {
                   radius={5}
                   fill={card.alert > i ? ALERT_COLORS[Math.min(card.alert, 3)] : '#2c332c'}
                   stroke="#555"
+                  {...showTip(`alert ${card.alert}/3`)}
                 />
               ))}
               {/* exits — separate from top zones; a top zone may carry none */}
@@ -212,14 +202,12 @@ export function Board(): JSX.Element {
                 let exitInfo: string;
                 let exitAction: string | undefined;
                 if (walled) {
-                  exitInfo = 'This exit is walled off.\n(The tile pool ran dry here.)';
+                  exitInfo = 'walled off';
                 } else if (blocked && blocker) {
-                  exitInfo = `${blocker.label}\n${
-                    blocker.openable ? 'A shut door — open it to pass, or peek through.' : 'Sealed for good — you can only peek through.'
-                  }`;
+                  exitInfo = `${blocker.label}${blocker.openable ? ' (shut door)' : ' (sealed grate)'}`;
                   exitAction = canOpen ? `open (${config.costs.crossExit}⚡)` : canPeek ? `peek through (${config.costs.inspect}⚡)` : undefined;
                 } else {
-                  exitInfo = `Exit to the ${exit.side} brick above.${explored ? '\nAlready explored.' : ''}`;
+                  exitInfo = `exit — ${exit.side} brick above`;
                   exitAction = canCross ? (explored ? 'cross' : 'explore') : undefined;
                 }
                 // anchor to the left/right brick above, never centered — even for a lone full-width exit
@@ -257,12 +245,9 @@ export function Board(): JSX.Element {
                   ...(unsearched > 0 ? [`❖ ${unsearched} unsearched cache${unsearched === 1 ? '' : 's'}`] : []),
                 ];
                 const zoneTip = [
-                  `${zoneLabel(sDef.id)}${sDef.hiding ? ' (hiding nook)' : ''}`,
-                  `${sDef.cover} cover — ${COVER_HINT[sDef.cover]}`,
-                  `chokepoint ${sDef.chokepoint} — ${sDef.chokepoint}+ enemies here block passage`,
-                  ...(sDef.capacity ? [`holds up to ${sDef.capacity} occupant${sDef.capacity === 1 ? '' : 's'}`] : []),
-                  ...(sDef.ambush ? ['may conceal an ambusher'] : []),
-                  ...(contents.length > 0 ? ['', 'contents:', ...contents] : ['', 'empty']),
+                  `${zoneLabel(sDef.id)}${sDef.hiding ? ' (nook)' : ''}`,
+                  `${sDef.cover} cover · width ${sDef.chokepoint}${sDef.capacity ? ` · cap ${sDef.capacity}` : ''}`,
+                  ...(contents.length > 0 ? ['', ...contents] : ['', 'empty']),
                 ].join('\n');
                 // action is independent of the info tooltip: only shown when a move is actually legal
                 const canMoveHere =
@@ -286,13 +271,11 @@ export function Board(): JSX.Element {
                       dash={sDef.hiding ? [5, 3] : undefined}
                     />
                     <Text text={`${sDef.hiding ? '🌿 ' : ''}${zoneLabel(sDef.id)}`} x={5} y={4} fontSize={11} fill="#b8c4a8" width={geom.w - 10} ellipsis wrap="none" />
-                    <Text text={`${COVER_GLYPH[sDef.cover]} · choke ${sDef.chokepoint}${sDef.capacity ? ` · cap ${sDef.capacity}` : ''}`} x={5} y={18} fontSize={10} fill="#8a967e" width={geom.w - 10} ellipsis wrap="none" />
+                    <Text text={`${COVER_GLYPH[sDef.cover]} · width ${sDef.chokepoint}${sDef.capacity ? ` · cap ${sDef.capacity}` : ''}`} x={5} y={18} fontSize={10} fill="#8a967e" width={geom.w - 10} ellipsis wrap="none" />
                     {/* mystery slots — larger; click to inspect */}
                     {sDef.slots.map((_, i) => {
                       const used = slotStates[i];
-                      const slotInfo = used
-                        ? 'Mystery cache ❖\nAlready searched.'
-                        : 'Mystery cache ❖\nDraws a token: item, clue, trap, or rune.';
+                      const slotInfo = used ? 'mystery cache (searched)' : 'mystery cache ❖';
                       const canInspect =
                         !used && !!hero && hero.cardId === card.id && hero.section === sDef.id &&
                         legal.some((c) => c.kind === 'Inspect' && c.slotIdx === i);
@@ -322,7 +305,7 @@ export function Board(): JSX.Element {
                       <Group
                         x={geom.w - 15}
                         y={11}
-                        {...showTip('Stealth move here.\nRoll vs alert; slip in unseen if you succeed.', `sneak (${config.costs.moveSection}⚡)`, SNEAK_CURSOR)}
+                        {...showTip('stealth move', `sneak (${config.costs.moveSection}⚡)`, SNEAK_CURSOR)}
                         onClick={(evt) => {
                           evt.cancelBubble = true;
                           store.dispatch(stealthCmd);
@@ -351,7 +334,7 @@ export function Board(): JSX.Element {
                         stroke="#86e0a0"
                         strokeWidth={1.6}
                         dash={[3, 2]}
-                        {...showTip('Hide in place.\nRoll vs alert; needs no awake enemy here.', `hide (${config.costs.reHide}⚡)`)}
+                        {...showTip('hide in place', `hide (${config.costs.reHide}⚡)`)}
                         onClick={(evt) => {
                           evt.cancelBubble = true;
                           store.dispatch(rehideCmd);
@@ -376,7 +359,7 @@ export function Board(): JSX.Element {
                             x={geom.w - 24}
                             y={3}
                             fontSize={16}
-                            {...showTip(`${blk.label} — standing open`, closeCmd ? `pull shut (${config.costs.crossExit}⚡)` : undefined)}
+                            {...showTip(`${blk.label} (open)`, closeCmd ? `pull shut (${config.costs.crossExit}⚡)` : undefined)}
                             onClick={(evt) => {
                               evt.cancelBubble = true;
                               if (closeCmd) store.dispatch(closeCmd);
@@ -390,7 +373,7 @@ export function Board(): JSX.Element {
                       }
                       const canOpen = legal.some((c) => c.kind === 'OpenExit' && c.exitIdx === idx);
                       const peekCmd = legal.find((c) => c.kind === 'PeekExit' && c.exitIdx === idx);
-                      const bInfo = `${blk.label}\n${blk.openable ? 'A shut door — open to pass, or peek through.' : 'Sealed for good — peek through only.'}`;
+                      const bInfo = `${blk.label}${blk.openable ? ' (shut door)' : ' (sealed grate)'}`;
                       const bAction = canOpen ? `open (${config.costs.crossExit}⚡)` : peekCmd ? `peek through (${config.costs.inspect}⚡)` : undefined;
                       return (
                         <Group key={`blk${idx}`}>
@@ -416,7 +399,7 @@ export function Board(): JSX.Element {
                               x={geom.w - 24}
                               y={24}
                               fontSize={13}
-                              {...showTip('Peek through the keyhole without opening it.', `peek (${config.costs.inspect}⚡)`)}
+                              {...showTip('peek through', `peek (${config.costs.inspect}⚡)`)}
                               onClick={(evt) => {
                                 evt.cancelBubble = true;
                                 store.dispatch(peekCmd);
@@ -438,8 +421,8 @@ export function Board(): JSX.Element {
                       const remaining = Math.max(0, total - e.stateIdx);
                       const stateName = eDef?.states[e.stateIdx]?.name ?? '?';
                       const enemyInfo = e.sleeper
-                        ? [`${eDef?.name ?? e.defId}`, 'Dormant 💤 — neutral until disturbed.', 'Sneak past, or strike first.'].join('\n')
-                        : [`${eDef?.name ?? e.defId}`, `${stateName} — ${remaining}/${total} health`].join('\n');
+                        ? `${eDef?.name ?? e.defId} (dormant 💤)`
+                        : `${eDef?.name ?? e.defId} — ${stateName} · ${remaining}/${total}♥`;
                       const atkAps = legal
                         .filter((c) => c.kind === 'Attack' && c.targetId === e.id)
                         .map((c) => (c as Extract<Command, { kind: 'Attack' }>).ap)
@@ -505,7 +488,7 @@ export function Board(): JSX.Element {
                             strokeWidth={2.5}
                             dash={h.detected ? undefined : [3, 2]}
                           />
-                          <Text text={classIcon(h.classId)} x={-7} y={-7} fontSize={12} />
+                          <Text text={classIcon(h.classId)} x={-11} y={-11} width={22} height={22} align="center" verticalAlign="middle" fontSize={12} />
                         </Group>
                       );
                     })}
@@ -524,7 +507,7 @@ export function Board(): JSX.Element {
                   const bx = b.x + b.w / 2;
                   const by = b.y + b.h / 2;
                   return (
-                    <Group key={`bar${i}`} {...showTip([`Barrier: ${zoneLabel(e.a)} ↔ ${zoneLabel(e.b)}`, `Requires ${e.requires}`, 'No special-move ability exists yet — uncrossable in v0.'].join('\n'))}>
+                    <Group key={`bar${i}`} {...showTip(`${zoneLabel(e.a)} ↔ ${zoneLabel(e.b)} — needs ${e.requires}`)}>
                       <Line points={[ax, ay, bx, by]} stroke="#8a6d3b" strokeWidth={2} dash={[4, 4]} />
                       <Text text={`⛰ ${e.requires}`} x={(ax + bx) / 2 - 16} y={(ay + by) / 2 - 6} fontSize={9} fill="#c8a86a" />
                     </Group>
