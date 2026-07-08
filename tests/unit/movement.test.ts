@@ -107,14 +107,14 @@ describe('StealthMove & ReHide', () => {
     expect(res.state.cards['c0']!.alert).toBe(0);
   });
 
-  it('0 hits = auto-fail: stays put, detected, alert raised', () => {
+  it('failed sneak still arrives at the target, but out in the open', () => {
     const { state } = newGame({ heroClassIds: ['shadowfoot'] });
     state.heroes[0]!.ap = 3;
     const res = applyCommand(content(), state, { kind: 'StealthMove', route: ['cloister_wall'] }, fixedRng([BLANK, BLANK]));
     const hero = res.state.heroes[0]!;
-    expect(hero.section).toBe('gate_yard');
-    expect(hero.detected).toBe(true);
-    expect(res.state.cards['c0']!.alert).toBeGreaterThanOrEqual(1);
+    expect(hero.section).toBe('cloister_wall'); // arrives regardless
+    expect(hero.detected).toBe(true); // but in the open
+    expect(res.state.cards['c0']!.alert).toBe(0); // no witness here ⇒ no alert
   });
 
   it('a stealth move can be attempted from the open; a clean success hides', () => {

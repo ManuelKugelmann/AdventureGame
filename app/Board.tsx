@@ -478,7 +478,7 @@ export function Board(): JSX.Element {
                       const heroTip = [
                         `Player ${h.idx + 1} — ${hDef.name}`,
                         `HP ${h.hp}/${hDef.hp}`,
-                        h.detected ? 'In the open' : 'Hidden 🌙',
+                        h.detected ? 'In the open' : 'Hidden',
                         ...(h.idx === state.activeHeroIdx ? ['Active this turn'] : []),
                       ].join('\n');
                       return (

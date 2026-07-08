@@ -1,7 +1,7 @@
 import { config } from '../config';
 import type { Ctx } from '../ctx';
 import { brickAbove, entryLanding, getCardDef, getHeroClassDef, getScenarioDef, getSectionDef, isExitCrossable } from '../model/content';
-import { getCard, getHero, gridKey } from '../model/state';
+import { enemiesOn, getCard, getHero, gridKey } from '../model/state';
 import { rollDice } from '../rng';
 import { raiseAlertFloor } from './alert';
 import { adjacentSections, sectionBlocked, sectionFull } from './graph';
@@ -156,9 +156,9 @@ function exploreExit(ctx: Ctx, fromCardId: string, exitIdx: number): string | un
 
 /**
  * Stealth move along a route within the current card. 1 AP for the attempt;
- * budget = hits − alertPenalty[alert] + stealth skill; entering a section
- * costs by cover (covered 0 / partial 1 / open 2). Failing mid-route =
- * commit-and-fail: advance to the last affordable section, detected there.
+ * budget = hits − alertPenalty[alert] + stealth skill; the route costs by cover
+ * (covered 0 / partial 1 / open 2). You always ARRIVE at the destination — a
+ * success slips you into hiding, a failure just leaves you there in the open.
  */
 export function stealthMove(ctx: Ctx, heroIdx: number, route: string[]): void {
   const hero = getHero(ctx.draft, heroIdx);
@@ -187,42 +187,32 @@ export function stealthMove(ctx: Ctx, heroIdx: number, route: string[]): void {
   if (penalty === undefined) throw new Error(`invariant: alert ${card.alert} out of range`);
   const budget = roll.hits - penalty + heroClass.skills.stealth;
 
-  const costs = route.map((s) => config.stealth.sectionCost[getSectionDef(def, s).cover]);
-  let spent = 0;
-  let reached = 0;
-  if (roll.hits > 0) {
-    // 0 hits on any roll = auto-fail (stay put, detected)
-    for (let i = 0; i < route.length; i++) {
-      const c = costs[i];
-      if (c === undefined) throw new Error('invariant: missing cost');
-      if (spent + c > budget) break;
-      spent += c;
-      reached = i + 1;
-    }
-  }
-  const success = roll.hits > 0 && reached === route.length;
-  ctx.emit({ kind: 'StealthRolled', heroIdx, roll, budget, cost: costs.reduce<number>((a, b) => a + b, 0), success });
+  const totalCost = route.map((s) => config.stealth.sectionCost[getSectionDef(def, s).cover]).reduce<number>((a, b) => a + b, 0);
+  const success = roll.hits > 0 && budget >= totalCost;
+  ctx.emit({ kind: 'StealthRolled', heroIdx, roll, budget, cost: totalCost, success });
 
-  const finalSection = reached > 0 ? route[reached - 1] : hero.section;
-  if (finalSection === undefined) throw new Error('invariant: no final section');
-  if (reached > 0) ctx.emit({ kind: 'Moved', heroIdx, cardId: hero.cardId, section: finalSection });
+  // you always arrive at the destination — success slips you into hiding, failure leaves you there in the open
+  const finalSection = route[route.length - 1];
+  if (finalSection === undefined) throw new Error('invariant: empty stealth route');
+  ctx.emit({ kind: 'Moved', heroIdx, cardId: hero.cardId, section: finalSection });
 
-  if (!success) {
-    detectHero(ctx, heroIdx, 'stealth fail');
-    raiseAlertFloor(ctx, hero.cardId, config.alert.floorUnstealthedMove, 'stealth fail');
-    resolveOneEnemyReaction(ctx, hero.cardId);
-  } else if (awakeEnemiesIn(ctx, hero.cardId, finalSection).length > 0) {
-    // slipping past is fine; ending in an enemy's zone is not
+  if (awakeEnemiesIn(ctx, hero.cardId, finalSection).length > 0) {
+    // ending on an awake enemy blows your cover no matter how well you rolled
     detectHero(ctx, heroIdx, 'zone-share');
     raiseAlertFloor(ctx, hero.cardId, config.alert.floorZoneShare, 'zone-share with committed enemy');
     resolveOneEnemyReaction(ctx, hero.cardId);
-  } else if (hero.detected) {
-    ctx.emit({ kind: 'HeroHidden', heroIdx }); // slipped from the open into hiding
+  } else if (success) {
+    if (hero.detected) ctx.emit({ kind: 'HeroHidden', heroIdx }); // slipped into hiding
+  } else {
+    // botched sneak: you still get there, but out in the open (loud only if a witness is around)
+    detectHero(ctx, heroIdx, 'stealth fail');
+    if (enemiesOn(ctx.draft, hero.cardId).some((e) => !e.sleeper)) {
+      raiseAlertFloor(ctx, hero.cardId, config.alert.floorUnstealthedMove, 'stealth fail');
+      resolveOneEnemyReaction(ctx, hero.cardId);
+    }
   }
-  if (reached > 0) {
-    checkAmbushes(ctx, heroIdx); // moving near a nook can spring it
-    peekFromZone(ctx, heroIdx);
-  }
+  checkAmbushes(ctx, heroIdx); // moving near a nook can spring it
+  peekFromZone(ctx, heroIdx);
 }
 
 /** Re-hide: 1 AP + stealth roll; needs no awake enemy in the section. */
