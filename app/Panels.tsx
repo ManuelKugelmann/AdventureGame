@@ -37,7 +37,7 @@ export function HeroPanel(): JSX.Element | null {
             <b>{h.idx + 1}. {def.name}</b>
             <span className="hp-hearts" title={`${h.hp}/${def.hp} HP`}> {hearts(h.hp, def.hp)}</span>
             <span className="ap-pips" title={`${h.ap} action points remaining this turn`}> {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}</span>
-            <span className={h.detected ? 'detected' : 'hidden-tag'}> {h.downed ? 'DOWN' : h.detected ? 'DETECTED' : 'unseen'}</span>
+            <span className={h.downed ? 'downed-tag' : h.detected ? 'detected' : 'unseen-muted'}> {h.downed ? 'DOWN' : h.detected ? 'DETECTED' : 'unseen'}</span>
           </div>
         );
       })}
@@ -109,7 +109,7 @@ export function ActionsPanel(): JSX.Element | null {
       </h3>
       <label className="sneak-toggle" title="When on, clicking a section attempts a stealth move (roll vs alert) instead of walking openly.">
         <input type="checkbox" checked={store.sneak} onChange={(e) => store.setSneak(e.target.checked)} />
-        sneak (stealth moves)
+        stealth
       </label>
       <div className="action-buttons">
         {targetAttacks.slice(0, config.costs.attackMaxAp).map((a) => (
