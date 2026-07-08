@@ -34,7 +34,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'StealthRolled':
       return `Stealth roll${dice(ev.roll)}: ${hits(ev.roll.hits)}, budget ${ev.budget} vs cost ${ev.cost} — ${ev.success ? 'unseen' : 'FAILED'}`;
     case 'AttackRolled':
-      return `Attack${dice(ev.roll)}: ${hits(ev.roll.hits)} → ${ev.netHits} net`;
+      return `Attack${dice(ev.roll)}: ${hits(ev.roll.hits)} → ${ev.netHits} dmg`;
     case 'EnemyStateSwapped':
       return `Enemy wounded (state ${ev.fromStateIdx}→${ev.toStateIdx})`;
     case 'EnemyDefeated':

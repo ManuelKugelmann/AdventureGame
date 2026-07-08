@@ -63,7 +63,7 @@ aside { display: flex; flex-direction: column; gap: 10px; max-width: 100%; }
 /* inactive players: fade with opacity (emoji ignore `color`) */
 .ap-inactive { color: #e8c44d; opacity: 0.4; letter-spacing: -1.5px; }
 .ap-roll { letter-spacing: 1px; }
-.log-dice { font-size: 1.7em; letter-spacing: 2px; vertical-align: -2px; }
+.log-dice { font-size: 1.1em; letter-spacing: 1px; }
 .log-ap { color: #e8c44d; font-weight: bold; }
 .log-hp { color: #d98080; font-weight: bold; }
 .stacks { display: flex; flex-wrap: wrap; gap: 6px 12px; }

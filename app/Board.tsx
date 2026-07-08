@@ -445,13 +445,13 @@ export function Board(): JSX.Element {
                           <Circle radius={11} fill={e.sleeper ? '#4e4668' : '#7d3434'} stroke={selected ? '#e8d44d' : '#222'} strokeWidth={selected ? 3 : 1} />
                           <Text text={e.sleeper ? '💤' : (eDef?.name[0] ?? '?')} x={-5} y={-6} fontSize={11} fill="#e8dcc8" />
                           <Text text={'♥'.repeat(remaining) + '♡'.repeat(e.stateIdx)} x={-12} y={12} fontSize={9} fill="#d98080" />
-                          {/* alt-action: direct attack at N AP (more AP = more dice) */}
+                          {/* alt-action: direct attack — one sword per AP spent, stacked above the enemy */}
                           {atkAps.map((ap, k) => (
                             <Group
                               key={ap}
-                              x={-14 + k * 15}
-                              y={-27}
-                              {...showTip(`Attack with ${ap}⚡ → roll ${ap} dice.`, `attack ${ap}⚡`)}
+                              x={-10}
+                              y={-25 - k * 13}
+                              {...showTip(`attack — ${ap}⚡`, `attack ${'⚔'.repeat(ap)}`)}
                               onClick={(evt) => {
                                 evt.cancelBubble = true;
                                 store.dispatch({ kind: 'Attack', targetId: e.id, ap });
@@ -461,8 +461,8 @@ export function Board(): JSX.Element {
                                 store.dispatch({ kind: 'Attack', targetId: e.id, ap });
                               }}
                             >
-                              <Rect width={13} height={12} cornerRadius={2} fill="#5a2020" stroke="#a05050" strokeWidth={0.5} />
-                              <Text text={`${ap}`} x={4} y={1} fontSize={10} fontStyle="bold" fill="#f0c0c0" />
+                              <Rect width={ap * 7 + 5} height={11} cornerRadius={2} fill="#5a2020" stroke="#a05050" strokeWidth={0.5} />
+                              <Text text={'†'.repeat(ap)} x={3} y={1} fontSize={11} fontStyle="bold" fill="#f0c0c0" />
                             </Group>
                           ))}
                         </Group>
