@@ -187,10 +187,10 @@ export function Board(): JSX.Element {
                 const tokenY = geom.h - 16;
                 const zoneTip = [
                   `${zoneLabel(sDef.id)}${sDef.hiding ? ' (hiding nook)' : ''}`,
-                  `Cover: ${sDef.cover} — ${COVER_HINT[sDef.cover]}`,
-                  `Chokepoint ${sDef.chokepoint}: ${sDef.chokepoint}+ enemies here block passage through`,
-                  ...(sDef.capacity ? [`Holds up to ${sDef.capacity} occupant${sDef.capacity === 1 ? '' : 's'}`] : []),
-                  ...(sDef.ambush ? ['May conceal an ambusher'] : []),
+                  `${sDef.cover} cover — ${COVER_HINT[sDef.cover]}`,
+                  `chokepoint ${sDef.chokepoint} — ${sDef.chokepoint}+ enemies here block passage`,
+                  ...(sDef.capacity ? [`holds up to ${sDef.capacity} occupant${sDef.capacity === 1 ? '' : 's'}`] : []),
+                  ...(sDef.ambush ? ['may conceal an ambusher'] : []),
                   'Click to move here.',
                 ].join('\n');
                 return (

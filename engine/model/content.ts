@@ -27,8 +27,9 @@ export type Side = z.infer<typeof SideSchema>;
 export const SectionDefSchema = z.object({
   id: z.string().min(1),
   cover: CoverSchema,
-  /** enemies in section ≥ chokepoint ⇒ transit through blocked */
-  chokepoint: z.number().int().min(1).max(5),
+  /** enemies in section ≥ chokepoint ⇒ transit through blocked. Low = a tight
+   * corridor a couple of guards can seal; high = an open yard you can't bottle up. */
+  chokepoint: z.number().int().min(1).max(12),
   slots: z.array(SlotSchema).default([]),
   row: RowSchema,
   col: ColSchema.default('full'),

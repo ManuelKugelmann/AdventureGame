@@ -41,13 +41,13 @@ export function HeroPanel(): JSX.Element | null {
               title={[
                 `${h.ap} action points left this turn`,
                 '',
-                'AP costs:',
-                `Move a zone — ${config.costs.moveSection}`,
-                `Cross an exit — ${config.costs.crossExit}`,
-                `Inspect ❖ — ${config.costs.inspect}`,
-                `Re-hide — ${config.costs.reHide}`,
-                `Attack — 1–${config.costs.attackMaxAp} (more AP = more dice)`,
-                'Refills each turn: class base + dice roll.',
+                `move a zone — ${config.costs.moveSection} AP`,
+                `cross an exit — ${config.costs.crossExit} AP`,
+                `inspect ❖ — ${config.costs.inspect} AP`,
+                `re-hide — ${config.costs.reHide} AP`,
+                `attack — 1–${config.costs.attackMaxAp} AP (more AP = more dice)`,
+                '',
+                'refills each turn: class base + dice roll',
               ].join('\n')}
             >
               {' '}

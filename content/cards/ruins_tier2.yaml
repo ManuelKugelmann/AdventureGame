@@ -18,7 +18,7 @@ cards:
     biome: ruins
     tier: 2
     sections:
-      - { id: base, row: entry, col: full, cover: open, chokepoint: 3 }
+      - { id: base, row: entry, col: full, cover: open, chokepoint: 8 }
       - { id: stairwell, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: base, b: stairwell }

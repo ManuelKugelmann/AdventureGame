@@ -4,7 +4,7 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: gate_yard, row: entry, col: full, cover: open, chokepoint: 3 }
+      - { id: gate_yard, row: entry, col: full, cover: open, chokepoint: 8 }
       - { id: cloister_wall, row: exit, col: left, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
       - { id: postern, row: exit, col: right, cover: partial, chokepoint: 2 }
     sectionEdges:
@@ -20,7 +20,7 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: garden, row: entry, col: full, cover: open, chokepoint: 3 }
+      - { id: garden, row: entry, col: full, cover: open, chokepoint: 8 }
       - { id: colonnade, row: exit, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: garden, b: colonnade }
@@ -49,7 +49,7 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: nave, row: entry, col: full, cover: open, chokepoint: 4 }
+      - { id: nave, row: entry, col: full, cover: open, chokepoint: 9 }
       - { id: altar, row: exit, col: right, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
       - { id: vestry, row: exit, col: left, cover: covered, chokepoint: 2 }
     sectionEdges:
@@ -81,7 +81,7 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: wellhead, row: entry, col: full, cover: open, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: wellhead, row: entry, col: full, cover: open, chokepoint: 6, slots: [{ kind: mystery }] }
       - { id: cistern, row: exit, col: full, cover: covered, chokepoint: 1 }
     sectionEdges:
       - { a: wellhead, b: cistern }
@@ -94,7 +94,7 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: beds, row: entry, col: full, cover: open, chokepoint: 3 }
+      - { id: beds, row: entry, col: full, cover: open, chokepoint: 8 }
       # a briar thicket: a cramped nook (capacity 1) that may conceal a lurking ghoul
       - { id: briar, row: core, col: left, cover: covered, chokepoint: 1, hiding: true, capacity: 1, ambush: { enemy: ghoul } }
       - { id: shed, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
@@ -131,8 +131,8 @@ cards:
     sections:
       - { id: south_ramp, row: entry, col: left, cover: partial, chokepoint: 2 }
       - { id: north_ramp, row: entry, col: right, cover: partial, chokepoint: 2 }
-      - { id: west_span, row: exit, col: left, cover: open, chokepoint: 3, slots: [{ kind: mystery }] }
-      - { id: east_span, row: exit, col: right, cover: open, chokepoint: 3 }
+      - { id: west_span, row: exit, col: left, cover: open, chokepoint: 6, slots: [{ kind: mystery }] }
+      - { id: east_span, row: exit, col: right, cover: open, chokepoint: 6 }
     sectionEdges:
       - { a: south_ramp, b: west_span }
       - { a: north_ramp, b: east_span }
