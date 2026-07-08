@@ -14,7 +14,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'RoundStarted':
       return `— Round ${ev.round} —`;
     case 'TurnStarted':
-      return `${heroName(ev.heroIdx)} starts turn with ${ev.ap} AP (rolled ${hits(ev.apRoll.hits)})`;
+      return `${heroName(ev.heroIdx)} starts turn with ${ev.ap} AP (rolled +${ev.apRoll.hits} AP)`;
     case 'Moved':
       return `${heroName(ev.heroIdx)} → ${zoneLabel(ev.section)}`;
     case 'CardPlaced':
