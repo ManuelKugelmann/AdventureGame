@@ -133,6 +133,8 @@ export function Board(): JSX.Element {
     if (cmd) store.dispatch(cmd);
   };
 
+  const moveLabel = `move ${store.sneak ? 'stealthy' : 'openly'} (${config.costs.moveSection} AP)`;
+
   const cards = Object.values(state.cards);
   const minX = Math.min(...cards.map((c) => cardXY(c).x));
   const maxY = Math.max(...cards.map((c) => cardXY(c).y));
@@ -233,8 +235,16 @@ export function Board(): JSX.Element {
                   ...(sDef.ambush ? ['may conceal an ambusher'] : []),
                   ...(contents.length > 0 ? ['', 'contents:', ...contents] : ['', 'empty']),
                 ].join('\n');
+                // action is independent of the info tooltip: only shown when a move is actually legal
+                const canMoveHere =
+                  !!hero && hero.cardId === card.id &&
+                  legal.some((c) => (c.kind === 'MoveSection' && c.toSection === sDef.id) || (c.kind === 'StealthMove' && c.route[0] === sDef.id));
+                const canCrossHere =
+                  !!hero && hero.cardId !== card.id &&
+                  legal.some((c) => c.kind === 'CrossExit' && state.cards[hero.cardId]?.exploredExits[c.exitIdx] === card.id);
+                const zoneAction = canMoveHere ? moveLabel : canCrossHere ? 'cross into here' : undefined;
                 return (
-                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip, 'Move here')} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
+                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip, zoneAction)} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
                     <Rect
                       width={geom.w}
                       height={geom.h}
@@ -353,12 +363,12 @@ export function Board(): JSX.Element {
       </Layer>
     </Stage>
     {tip?.action && (
-      <div className="board-action" style={{ left: tip.x + 12, top: tip.y - 26 }}>
+      <div className="board-action" style={{ left: tip.x + 14, top: tip.y - 30 }}>
         {tip.action}
       </div>
     )}
     {tip && (
-      <div className="board-tip" style={{ left: tip.x + 16, top: tip.y + 18 }}>
+      <div className="board-tip" style={{ left: tip.x + 18, top: tip.y - 2 }}>
         {tip.info}
       </div>
     )}

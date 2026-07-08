@@ -53,8 +53,18 @@ export const CardDefSchema = z.object({
   sections: z.array(SectionDefSchema).min(2).max(6),
   /** intra-card paths; `requires` marks a barrier edge (climb/jump) not crossable by normal movement in v0 */
   sectionEdges: z.array(z.object({ a: z.string(), b: z.string(), requires: z.string().min(1).optional() })),
-  /** exits are separate from top zones: an exit anchors to a `row:exit` zone and leads to the left/right brick above */
-  topExits: z.array(z.object({ section: z.string().min(1), side: SideSchema })).min(1).max(2),
+  /** exits are separate from top zones: an exit anchors to a `row:exit` zone and leads to the left/right brick above.
+   * A `blocker` gates it: openable ⇒ a door you can open to pass; permanent ⇒ never crossable (peek-through only). */
+  topExits: z
+    .array(
+      z.object({
+        section: z.string().min(1),
+        side: SideSchema,
+        blocker: z.object({ label: z.string().min(1), openable: z.boolean() }).optional(),
+      }),
+    )
+    .min(1)
+    .max(2),
   /** enemies present when the card is revealed */
   spawns: z
     .array(z.object({ enemy: z.string().min(1), section: z.string().min(1), sleeper: z.boolean().default(false) }))
