@@ -1,6 +1,6 @@
 import { config } from '../config';
 import type { Ctx } from '../ctx';
-import { getEnemyDef, primaryEntry } from '../model/content';
+import { getEnemyDef } from '../model/content';
 import { enemiesOn, getCard, heroesOn } from '../model/state';
 import { enemyCapReached, linkedCards } from './graph';
 
@@ -65,11 +65,18 @@ export function encounterChecks(ctx: Ctx): void {
   }
 }
 
-/** Spawn `count` enemies from the encounter pool onto a card's entry section. */
+/**
+ * Reinforcements enter from an UNEXPLORED way — an exit whose beyond isn't
+ * revealed yet. A card ringed by explored/cleared cards has no such opening, so
+ * it gets no encounter: cleared cards buffer the party.
+ */
 export function spawnEncounter(ctx: Ctx, cardId: string, count: number): void {
   const card = getCard(ctx.draft, cardId);
   const def = ctx.content.cards[card.defId];
   if (!def) throw new Error(`unknown card def ${card.defId}`);
+  const openWays = def.topExits.filter((_, idx) => card.exploredExits[idx] === undefined && !card.blockedExits.includes(idx));
+  if (openWays.length === 0) return; // no unexplored opening — nothing gets in
+  const enterAt = ctx.rng.pick(openWays).section;
   let spawned = 0;
   for (let i = 0; i < count; i++) {
     if (enemyCapReached(ctx.draft)) break;
@@ -77,7 +84,7 @@ export function spawnEncounter(ctx: Ctx, cardId: string, count: number): void {
     getEnemyDef(ctx.content, enemyDefId); // assert exists
     const enemyId = `e${ctx.draft.nextId}`;
     if (spawned === 0) ctx.emit({ kind: 'EncounterSpawned', cardId, count });
-    ctx.emit({ kind: 'EnemySpawned', enemyId, defId: enemyDefId, cardId, section: primaryEntry(def).id, sleeper: false });
+    ctx.emit({ kind: 'EnemySpawned', enemyId, defId: enemyDefId, cardId, section: enterAt, sleeper: false });
     spawned++;
   }
 }
