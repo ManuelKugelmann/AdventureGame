@@ -17,7 +17,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'RoundStarted':
       return `— Round ${ev.round} —`;
     case 'TurnStarted':
-      return `${heroName(ev.heroIdx)} starts turn with ${ev.ap} AP (rolled +${ev.apRoll.hits} AP)${dice(ev.apRoll)}`;
+      return `${heroName(ev.heroIdx)} starts turn with ${ev.ap}⚡ (rolled +${ev.apRoll.hits}⚡)${dice(ev.apRoll)}`;
     case 'Moved':
       return `${heroName(ev.heroIdx)} → ${zoneLabel(ev.section)}`;
     case 'CardPlaced':
@@ -75,9 +75,9 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'TurnEnded':
       return `${heroName(ev.heroIdx)} ends turn`;
     case 'ApSpent':
-      return `${heroName(ev.heroIdx)} spends ${ev.amount} AP`;
+      return `${heroName(ev.heroIdx)} spends ${ev.amount}⚡`;
     case 'ApGained':
-      return `${heroName(ev.heroIdx)} gains ${ev.amount} AP`;
+      return `${heroName(ev.heroIdx)} gains ${ev.amount}⚡`;
     case 'ExitLinked':
       return `Passage links to an explored area`;
     case 'ExitOpened':

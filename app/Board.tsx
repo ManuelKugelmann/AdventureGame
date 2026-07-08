@@ -20,6 +20,11 @@ const COVER_HINT = {
   covered: 'well hidden — easier to stay unseen',
 } as const;
 
+// custom cursor: a dashed 4-way move-arrow (stealth). Built-in `move` is the solid 4-way arrow for open moves.
+const SNEAK_ARROW_SVG =
+  "<svg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'><g fill='none' stroke='#5fbf7f' stroke-width='2' stroke-dasharray='3 2' stroke-linejoin='round'><path d='M13 4V22M4 13H22'/><path d='M10 7 13 4 16 7M10 19 13 22 16 19M7 10 4 13 7 16M19 10 22 13 19 16'/></g></svg>";
+const SNEAK_CURSOR = `url("data:image/svg+xml,${encodeURIComponent(SNEAK_ARROW_SVG)}") 13 13, move`;
+
 const CARD_W = 300;
 const CARD_H = 180;
 const GAP = 26;
@@ -93,11 +98,11 @@ export function Board(): JSX.Element {
   // info = the descriptive box; action = what a click does. cancelBubble makes the innermost shape under the cursor
   // win; we DON'T clear on leave (the outer shape re-asserts via its own onMouseMove, and the Stage clears over empty
   // space) — otherwise leaving a nested icon blanks the outer tooltip.
-  const showTip = (info: string, action?: string) => {
+  const showTip = (info: string, action?: string, cursor?: string) => {
     const set = (e: KonvaEventObject<MouseEvent>): void => {
       e.cancelBubble = true;
       setTip({ info, action, x: e.evt.clientX, y: e.evt.clientY });
-      setCursor(e, action ? 'pointer' : 'grab');
+      setCursor(e, cursor ?? (action ? 'pointer' : 'grab'));
     };
     return { onMouseEnter: set, onMouseMove: set };
   };
@@ -136,7 +141,7 @@ export function Board(): JSX.Element {
     if (cmd) store.dispatch(cmd);
   };
 
-  const moveLabel = `move openly (${config.costs.moveSection} AP)`;
+  const moveLabel = `move openly (${config.costs.moveSection}⚡)`;
 
   const cards = Object.values(state.cards);
   const minX = Math.min(...cards.map((c) => cardXY(c).x));
@@ -210,7 +215,7 @@ export function Board(): JSX.Element {
                   exitInfo = `${blocker.label}\n${
                     blocker.openable ? 'A shut door — open it to pass, or peek through.' : 'Sealed for good — you can only peek through.'
                   }`;
-                  exitAction = canOpen ? `open (${config.costs.crossExit} AP)` : canPeek ? `peek through (${config.costs.inspect} AP)` : undefined;
+                  exitAction = canOpen ? `open (${config.costs.crossExit}⚡)` : canPeek ? `peek through (${config.costs.inspect}⚡)` : undefined;
                 } else {
                   exitInfo = `Exit to the ${exit.side} brick above.${explored ? '\nAlready explored.' : ''}`;
                   exitAction = canCross ? (explored ? 'cross' : 'explore') : undefined;
@@ -268,7 +273,7 @@ export function Board(): JSX.Element {
                   legal.some((c) => c.kind === 'CrossExit' && state.cards[hero.cardId]?.exploredExits[c.exitIdx] === card.id);
                 const zoneAction = canMoveHere ? moveLabel : canCrossHere ? 'cross into here' : undefined;
                 return (
-                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip, zoneAction)} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
+                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip, zoneAction, zoneAction ? 'move' : undefined)} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
                     <Rect
                       width={geom.w}
                       height={geom.h}
@@ -289,7 +294,7 @@ export function Board(): JSX.Element {
                       const canInspect =
                         !used && !!hero && hero.cardId === card.id && hero.section === sDef.id &&
                         legal.some((c) => c.kind === 'Inspect' && c.slotIdx === i);
-                      const slotAction = canInspect ? `Inspect (${config.costs.inspect} AP)` : undefined;
+                      const slotAction = canInspect ? `Inspect (${config.costs.inspect}⚡)` : undefined;
                       return (
                         <Text
                           key={i}
@@ -315,7 +320,7 @@ export function Board(): JSX.Element {
                       <Group
                         x={geom.w - 15}
                         y={11}
-                        {...showTip('Stealth move here.\nRoll vs alert; slip in unseen if you succeed.', `sneak (${config.costs.moveSection} AP)`)}
+                        {...showTip('Stealth move here.\nRoll vs alert; slip in unseen if you succeed.', `sneak (${config.costs.moveSection}⚡)`, SNEAK_CURSOR)}
                         onClick={(evt) => {
                           evt.cancelBubble = true;
                           store.dispatch(stealthCmd);
@@ -344,7 +349,7 @@ export function Board(): JSX.Element {
                         stroke="#86e0a0"
                         strokeWidth={1.6}
                         dash={[3, 2]}
-                        {...showTip('Hide in place.\nRoll vs alert; needs no awake enemy here.', `hide (${config.costs.reHide} AP)`)}
+                        {...showTip('Hide in place.\nRoll vs alert; needs no awake enemy here.', `hide (${config.costs.reHide}⚡)`)}
                         onClick={(evt) => {
                           evt.cancelBubble = true;
                           store.dispatch(rehideCmd);
@@ -369,7 +374,7 @@ export function Board(): JSX.Element {
                             x={geom.w - 24}
                             y={3}
                             fontSize={16}
-                            {...showTip(`${blk.label} — standing open`, closeCmd ? `pull shut (${config.costs.crossExit} AP)` : undefined)}
+                            {...showTip(`${blk.label} — standing open`, closeCmd ? `pull shut (${config.costs.crossExit}⚡)` : undefined)}
                             onClick={(evt) => {
                               evt.cancelBubble = true;
                               if (closeCmd) store.dispatch(closeCmd);
@@ -384,7 +389,7 @@ export function Board(): JSX.Element {
                       const canOpen = legal.some((c) => c.kind === 'OpenExit' && c.exitIdx === idx);
                       const peekCmd = legal.find((c) => c.kind === 'PeekExit' && c.exitIdx === idx);
                       const bInfo = `${blk.label}\n${blk.openable ? 'A shut door — open to pass, or peek through.' : 'Sealed for good — peek through only.'}`;
-                      const bAction = canOpen ? `open (${config.costs.crossExit} AP)` : peekCmd ? `peek through (${config.costs.inspect} AP)` : undefined;
+                      const bAction = canOpen ? `open (${config.costs.crossExit}⚡)` : peekCmd ? `peek through (${config.costs.inspect}⚡)` : undefined;
                       return (
                         <Group key={`blk${idx}`}>
                           <Text
@@ -409,7 +414,7 @@ export function Board(): JSX.Element {
                               x={geom.w - 24}
                               y={24}
                               fontSize={13}
-                              {...showTip('Peek through the keyhole without opening it.', `peek (${config.costs.inspect} AP)`)}
+                              {...showTip('Peek through the keyhole without opening it.', `peek (${config.costs.inspect}⚡)`)}
                               onClick={(evt) => {
                                 evt.cancelBubble = true;
                                 store.dispatch(peekCmd);
@@ -461,7 +466,7 @@ export function Board(): JSX.Element {
                               key={ap}
                               x={-14 + k * 15}
                               y={-27}
-                              {...showTip(`Attack with ${ap} AP → roll ${ap} dice.`, `attack ${ap} AP`)}
+                              {...showTip(`Attack with ${ap}⚡ → roll ${ap} dice.`, `attack ${ap}⚡`)}
                               onClick={(evt) => {
                                 evt.cancelBubble = true;
                                 store.dispatch({ kind: 'Attack', targetId: e.id, ap });

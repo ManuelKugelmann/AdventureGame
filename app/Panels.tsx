@@ -35,23 +35,23 @@ export function HeroPanel(): JSX.Element | null {
             ].join('\n')}
           >
             <b>{h.idx + 1}. {def.name}</b>
-            <span className="hp-hearts" title={`${h.hp}/${def.hp} HP`}> {hearts(h.hp, def.hp)}</span>
+            <span className="hp-hearts" title={`${h.hp}/${def.hp} HP`}> HP: {hearts(h.hp, def.hp)}</span>
             <span
               className="ap-pips"
               title={[
-                `${h.ap} action points left this turn`,
+                `${h.ap} action points (⚡) left this turn`,
                 '',
-                `move a zone — ${config.costs.moveSection} AP`,
-                `cross an exit — ${config.costs.crossExit} AP`,
-                `inspect ❖ — ${config.costs.inspect} AP`,
-                `hide — ${config.costs.reHide} AP`,
-                `attack — 1–${config.costs.attackMaxAp} AP (more AP = more dice)`,
+                `move a zone — ${config.costs.moveSection}⚡`,
+                `cross an exit — ${config.costs.crossExit}⚡`,
+                `inspect ❖ — ${config.costs.inspect}⚡`,
+                `hide — ${config.costs.reHide}⚡`,
+                `attack — 1–${config.costs.attackMaxAp}⚡ (more ⚡ = more dice)`,
                 '',
                 'refills each turn: class base + dice roll',
               ].join('\n')}
             >
               {' '}
-              {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}
+              AP: {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}
             </span>
             <span className={h.downed ? 'downed-tag' : h.detected ? 'open-muted' : 'hidden-mark'}> {h.downed ? 'DOWN' : h.detected ? 'in the open' : 'HIDDEN'}</span>
           </div>
@@ -130,7 +130,7 @@ export function ActionsPanel(): JSX.Element | null {
             title={`Spend ${a.ap} AP to roll ${a.ap} dice against this enemy (more AP = more dice). Cover and hidden-strike modify the roll.`}
             onClick={() => store.dispatch(a)}
           >
-            ⚔ Attack {content.enemies[state.enemies[a.targetId]?.defId ?? '']?.name ?? a.targetId} ({a.ap} AP)
+            ⚔ Attack {content.enemies[state.enemies[a.targetId]?.defId ?? '']?.name ?? a.targetId} ({a.ap}⚡)
           </button>
         ))}
         {attacks.length > 0 && !store.selectedEnemyId && <div className="hint">tip: click an enemy on the board to focus it</div>}
@@ -145,7 +145,7 @@ export function ActionsPanel(): JSX.Element | null {
         ))}
         {rehide && (
           <button title="Spend 1 AP to slip into hiding (needs no awake enemy in your section)." onClick={() => store.dispatch(rehide)}>
-            ◌ Hide (1 AP)
+            ◌ Hide (1⚡)
           </button>
         )}
         <button className="end-turn" title="End this hero's turn and pass to the next player." onClick={() => store.dispatch({ kind: 'EndTurn' })}>
