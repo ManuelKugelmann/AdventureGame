@@ -60,6 +60,9 @@ aside { display: flex; flex-direction: column; gap: 10px; max-width: 100%; }
 .turn-tag { font-size: 12px; font-weight: normal; color: #a8b598; }
 .hp-hearts { color: #d98080; letter-spacing: 0.5px; }
 .ap-pips { color: #e8c44d; letter-spacing: -1.5px; } /* closer bolt spacing */
+.ap-inactive { color: #5c5642; letter-spacing: -1.5px; } /* inactive players: greyed AP label + bolts */
+.ap-base { color: #8a7a44; } /* inactive: guaranteed base AP */
+.ap-roll { color: #565c4d; letter-spacing: 1px; } /* inactive: rollable AP slots */
 .log-dice { font-size: 1.7em; letter-spacing: 2px; vertical-align: -2px; }
 .log-ap { color: #e8c44d; font-weight: bold; }
 .log-hp { color: #d98080; font-weight: bold; }

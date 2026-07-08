@@ -40,14 +40,13 @@ export function HeroPanel(): JSX.Element | null {
               <span className="hr-name">
                 <b style={{ color: playerColor(h.idx) }}>{h.idx + 1}</b> {classIcon(h.classId)} {def.name}
               </span>
+              {(h.downed || !h.detected) && (
+                <span className={`hr-status ${h.downed ? 'downed-tag' : 'hidden-mark'}`} title={h.downed ? 'Downed' : 'Hidden'}>
+                  {h.downed ? 'DOWN' : '🌫 HIDDEN'}
+                </span>
+              )}
               <span
-                className={`hr-status ${h.downed ? 'downed-tag' : h.detected ? 'open-muted' : 'hidden-mark'}`}
-                title={h.downed ? 'Downed' : h.detected ? 'In the open' : 'Hidden'}
-              >
-                {h.downed ? 'DOWN' : h.detected ? 'in the open' : 'HIDDEN'}
-              </span>
-              <span
-                className="hr-ap ap-pips"
+                className={`hr-ap ${active ? 'ap-pips' : 'ap-inactive'}`}
                 title={[
                   `${h.ap} action points (⚡) left this turn`,
                   '',
@@ -60,7 +59,15 @@ export function HeroPanel(): JSX.Element | null {
                   'refills each turn: class base + dice roll',
                 ].join('\n')}
               >
-                AP {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}
+                AP{' '}
+                {active ? (
+                  h.ap > 0 ? '⚡'.repeat(h.ap) : '·'
+                ) : (
+                  <>
+                    <span className="ap-base" title={`base ${def.apBase}⚡`}>{'⚡'.repeat(def.apBase)}</span>
+                    <span className="ap-roll" title={`+ up to ${config.turn.apDice}⚡ rolled on your turn`}>{'+'.repeat(config.turn.apDice)}</span>
+                  </>
+                )}
               </span>
             </div>
             <div className="hr-line hr-stats">
