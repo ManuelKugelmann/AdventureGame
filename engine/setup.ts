@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { makeCtx } from './ctx';
 import type { ContentDB } from './model/content';
-import { getCardDef, getHeroClassDef, getScenarioDef } from './model/content';
+import { getCardDef, getHeroClassDef, getScenarioDef, primaryEntry } from './model/content';
 import type { GameEvent } from './model/events';
 import type { GameState } from './model/state';
 import { gridKey } from './model/state';
@@ -57,6 +57,7 @@ export function createGame(content: ContentDB, setupRaw: unknown, rng: Rng): { s
         usedSlots: {},
         blockedExits: [],
         exploredExits: {},
+        sprungAmbushes: [],
       },
     },
     enemies: {},
@@ -68,7 +69,7 @@ export function createGame(content: ContentDB, setupRaw: unknown, rng: Rng): { s
         hp: heroClass.hp,
         ap: 0,
         cardId: 'c0',
-        section: startDef.entrySection,
+        section: primaryEntry(startDef).id,
         detected: false,
         downed: false,
         usedHiddenStrike: false,

@@ -40,7 +40,7 @@ describe('turn & round flow', () => {
     // hero elsewhere: simulate an empty alerted card by placing hero on a second card
     state.cards['c9'] = {
       id: 'c9', defId: 'old_well', row: 1, col: 0, alert: 1, emptyRounds: 2,
-      alertThreeRounds: 0, usedSlots: {}, blockedExits: [], exploredExits: {},
+      alertThreeRounds: 0, usedSlots: {}, blockedExits: [], exploredExits: {}, sprungAmbushes: [],
     };
     state.grid['1,0'] = 'c9';
     state.cards['c0']!.exploredExits[0] = 'c9';

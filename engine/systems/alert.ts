@@ -1,6 +1,6 @@
 import { config } from '../config';
 import type { Ctx } from '../ctx';
-import { getEnemyDef } from '../model/content';
+import { getEnemyDef, primaryEntry } from '../model/content';
 import { enemiesOn, getCard, heroesOn } from '../model/state';
 import { enemyCapReached, linkedCards } from './graph';
 
@@ -77,7 +77,7 @@ export function spawnEncounter(ctx: Ctx, cardId: string, count: number): void {
     getEnemyDef(ctx.content, enemyDefId); // assert exists
     const enemyId = `e${ctx.draft.nextId}`;
     if (spawned === 0) ctx.emit({ kind: 'EncounterSpawned', cardId, count });
-    ctx.emit({ kind: 'EnemySpawned', enemyId, defId: enemyDefId, cardId, section: def.entrySection, sleeper: false });
+    ctx.emit({ kind: 'EnemySpawned', enemyId, defId: enemyDefId, cardId, section: primaryEntry(def).id, sleeper: false });
     spawned++;
   }
 }

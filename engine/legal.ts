@@ -5,7 +5,7 @@ import type { Command } from './model/commands';
 import type { GameState } from './model/state';
 import { activeHero, enemiesOn, getCard } from './model/state';
 import { getScenarioDef } from './model/content';
-import { adjacentSections, sectionBlocked } from './systems/graph';
+import { adjacentSections, sectionBlocked, sectionFull } from './systems/graph';
 
 /**
  * Enumerate the commands the active hero may legally issue. Used by bots and
@@ -22,7 +22,7 @@ export function legalCommands(content: ContentDB, state: GameState): Command[] {
 
   if (hero.ap >= config.costs.moveSection) {
     for (const s of adjacentSections(content, state, hero.cardId, hero.section)) {
-      if (!sectionBlocked(content, state, hero.cardId, s)) {
+      if (!sectionBlocked(content, state, hero.cardId, s) && !sectionFull(content, state, hero.cardId, s)) {
         out.push({ kind: 'MoveSection', toSection: s });
         if (!hero.detected) out.push({ kind: 'StealthMove', route: [s] });
       }

@@ -14,12 +14,32 @@ export const SlotSchema = z.object({
 });
 export type Slot = z.infer<typeof SlotSchema>;
 
+/** vertical band a zone sits in: entry (bottom) / core (middle) / exit (top) */
+export const RowSchema = z.enum(['entry', 'core', 'exit']);
+export type Row = z.infer<typeof RowSchema>;
+/** horizontal placement within its row: full width, or the left / right half */
+export const ColSchema = z.enum(['full', 'left', 'right']);
+export type Col = z.infer<typeof ColSchema>;
+/** which of the two bricks straddling a card an exit leads to */
+export const SideSchema = z.enum(['left', 'right']);
+export type Side = z.infer<typeof SideSchema>;
+
 export const SectionDefSchema = z.object({
   id: z.string().min(1),
   cover: CoverSchema,
   /** enemies in section ≥ chokepoint ⇒ transit through blocked */
   chokepoint: z.number().int().min(1).max(5),
   slots: z.array(SlotSchema).default([]),
+  row: RowSchema,
+  col: ColSchema.default('full'),
+  /** a small nook: limited occupants; may conceal an ambusher */
+  hiding: z.boolean().default(false),
+  /** max simultaneous occupants (heroes + enemies); defaults per config for hiding places, else unlimited */
+  capacity: z.number().int().min(1).optional(),
+  /** an ambusher that springs when a hero enters an adjacent zone (hiding zones only) */
+  ambush: z
+    .object({ enemy: z.string().min(1), chancePct: z.number().int().min(0).max(100).optional() })
+    .optional(),
 });
 export type SectionDef = z.infer<typeof SectionDefSchema>;
 
@@ -28,14 +48,12 @@ export const CardDefSchema = z.object({
   name: z.string().min(1),
   biome: z.string().min(1),
   tier: z.union([z.literal(1), z.literal(2)]),
-  sections: z.array(SectionDefSchema).min(2).max(4),
-  sectionEdges: z.array(z.object({ a: z.string(), b: z.string() })),
-  entrySection: z.string().min(1),
-  /** exits toward the next bricklaid row; dCol is the column offset of the new card */
-  topExits: z
-    .array(z.object({ section: z.string().min(1), dCol: z.union([z.literal(-1), z.literal(0), z.literal(1)]) }))
-    .min(1)
-    .max(2),
+  // zones per card stay low; up to 6 covers overpass (2 entry + 2 exit) + a nook
+  sections: z.array(SectionDefSchema).min(2).max(6),
+  /** intra-card paths; `requires` marks a barrier edge (climb/jump) not crossable by normal movement in v0 */
+  sectionEdges: z.array(z.object({ a: z.string(), b: z.string(), requires: z.string().min(1).optional() })),
+  /** exits are separate from top zones: an exit anchors to a `row:exit` zone and leads to the left/right brick above */
+  topExits: z.array(z.object({ section: z.string().min(1), side: SideSchema })).min(1).max(2),
   /** enemies present when the card is revealed */
   spawns: z
     .array(z.object({ enemy: z.string().min(1), section: z.string().min(1), sleeper: z.boolean().default(false) }))
@@ -198,4 +216,45 @@ export function getSectionDef(card: CardDef, sectionId: string): SectionDef {
   const s = card.sections.find((x) => x.id === sectionId);
   if (!s) throw new Error(`unknown section ${sectionId} on card ${card.id}`);
   return s;
+}
+
+/** Entry zones of a card (bottom band). At least one; up to two (left/right). */
+export function entrySectionsOf(card: CardDef): SectionDef[] {
+  return card.sections.filter((s) => s.row === 'entry');
+}
+
+/** Deterministic single entry (setup / fallback landing). */
+export function primaryEntry(card: CardDef): SectionDef {
+  const e = entrySectionsOf(card)[0];
+  if (!e) throw new Error(`card ${card.id} has no entry section`);
+  return e;
+}
+
+/**
+ * Where a hero lands when arriving from the brick below via a given exit side.
+ * A card entered through its left brick is met from the lower-right, so the
+ * right-hand entry (if any) is chosen; else the primary entry.
+ */
+export function entryLanding(card: CardDef, fromSide: Side): SectionDef {
+  const wantCol: Col = fromSide === 'left' ? 'right' : 'left';
+  return entrySectionsOf(card).find((e) => e.col === wantCol) ?? primaryEntry(card);
+}
+
+/** Section ids that carry a live exit (a top zone may have none). */
+export function exitSectionIds(card: CardDef): Set<string> {
+  return new Set(card.topExits.map((e) => e.section));
+}
+
+/** Section edges a hero may walk normally (barrier `requires` edges excluded). */
+export function normalEdges(card: CardDef): { a: string; b: string }[] {
+  return card.sectionEdges.filter((e) => e.requires === undefined);
+}
+
+/**
+ * Grid cell of the brick above `(row,col)` on the given side. Rows stagger by
+ * +0.5 (see board geometry), so the two bricks straddling a card are at col-1
+ * (up-left) and col (up-right) of the next row.
+ */
+export function brickAbove(row: number, col: number, side: Side): { row: number; col: number } {
+  return { row: row + 1, col: side === 'left' ? col - 1 : col };
 }

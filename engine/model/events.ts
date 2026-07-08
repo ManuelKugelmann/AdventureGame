@@ -44,6 +44,7 @@ export type GameEvent =
   | { kind: 'EnemyActed'; enemyId: string; action: 'attack' | 'move' | 'investigate' | 'idle' }
   | { kind: 'EnemiesReset' }
   | { kind: 'EncounterSpawned'; cardId: string; count: number }
+  | { kind: 'AmbushResolved'; cardId: string; section: string; enemyId: string | null }
   // mystery
   | { kind: 'SlotUsed'; cardId: string; section: string; slotIdx: number }
   | { kind: 'TokenDrawn'; heroIdx: number; tokenId: string; tier: 1 | 2 }

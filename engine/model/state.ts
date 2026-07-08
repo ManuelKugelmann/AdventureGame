@@ -21,6 +21,8 @@ export interface CardInstance {
   blockedExits: number[];
   /** exit index → cardInstanceId once explored */
   exploredExits: Record<number, string>;
+  /** hiding-zone section ids whose ambush has already been rolled (spring once) */
+  sprungAmbushes: string[];
 }
 
 export interface EnemyInstance {
@@ -122,6 +124,15 @@ export function enemiesIn(state: GameState, cardId: string, section: string): En
 
 export function heroesOn(state: GameState, cardId: string): HeroInstance[] {
   return state.heroes.filter((h) => !h.downed && h.cardId === cardId);
+}
+
+export function heroesIn(state: GameState, cardId: string, section: string): HeroInstance[] {
+  return heroesOn(state, cardId).filter((h) => h.section === section);
+}
+
+/** live occupants of a section: heroes + enemies (drives hiding-zone capacity). */
+export function occupantsIn(state: GameState, cardId: string, section: string): number {
+  return heroesIn(state, cardId, section).length + enemiesIn(state, cardId, section).length;
 }
 
 export function livingHeroes(state: GameState): HeroInstance[] {

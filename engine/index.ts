@@ -39,6 +39,6 @@ export { replaySave, foldEvents, SaveSchema } from './replay';
 export type { SaveGame } from './replay';
 export { randomBot, greedyBot, runBotGame } from './bots';
 export type { BotPolicy, BotGameResult } from './bots';
-export { adjacentSections, linkedCards, sectionBlocked } from './systems/graph';
+export { adjacentSections, linkedCards, sectionBlocked, sectionCapacity, sectionFull } from './systems/graph';
 export type { Pos } from './systems/graph';
 export { nextHeroInRound } from './systems/turn';

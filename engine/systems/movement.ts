@@ -1,12 +1,13 @@
 import { config } from '../config';
 import type { Ctx } from '../ctx';
-import { getCardDef, getHeroClassDef, getScenarioDef, getSectionDef } from '../model/content';
+import { brickAbove, entryLanding, getCardDef, getHeroClassDef, getScenarioDef, getSectionDef } from '../model/content';
 import { getCard, getHero, gridKey } from '../model/state';
 import { rollDice } from '../rng';
 import { raiseAlertFloor } from './alert';
-import { adjacentSections, sectionBlocked } from './graph';
+import { adjacentSections, sectionBlocked, sectionFull } from './graph';
 import { afterHeroEnters, awakeEnemiesIn, beforeHeroExitsCard, detectHero } from './detection';
 import { resolveOneEnemyReaction } from './enemyAi';
+import { checkAmbushes } from './ambush';
 
 /** Normal (unstealthed) section-to-section move. 1 AP. */
 export function moveSection(ctx: Ctx, heroIdx: number, toSection: string): void {
@@ -15,9 +16,12 @@ export function moveSection(ctx: Ctx, heroIdx: number, toSection: string): void 
     throw new Error(`MoveSection: ${toSection} not adjacent to ${hero.section}`);
   if (sectionBlocked(ctx.content, ctx.draft, hero.cardId, toSection))
     throw new Error(`MoveSection: section ${toSection} is chokepoint-blocked`);
+  if (sectionFull(ctx.content, ctx.draft, hero.cardId, toSection))
+    throw new Error(`MoveSection: section ${toSection} is at occupant capacity`);
   ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.moveSection });
   ctx.emit({ kind: 'Moved', heroIdx, cardId: hero.cardId, section: toSection });
   afterHeroEnters(ctx, heroIdx);
+  checkAmbushes(ctx, heroIdx);
 }
 
 /**
@@ -45,10 +49,11 @@ export function crossExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
 
   const wasDetected = getHero(ctx.draft, heroIdx).detected;
   beforeHeroExitsCard(ctx, heroIdx);
-  const entry = getCardDef(ctx.content, getCard(ctx.draft, targetCardId).defId).entrySection;
+  const entry = entryLanding(getCardDef(ctx.content, getCard(ctx.draft, targetCardId).defId), exit.side).id;
   ctx.emit({ kind: 'Moved', heroIdx, cardId: targetCardId, section: entry });
   if (wasDetected) ctx.emit({ kind: 'HeroHidden', heroIdx }); // reset to hidden on card transition
   afterHeroEnters(ctx, heroIdx);
+  checkAmbushes(ctx, heroIdx);
 }
 
 /** Reveal what lies beyond an unexplored exit. Returns the card id, or undefined if walled. */
@@ -57,8 +62,7 @@ function exploreExit(ctx: Ctx, fromCardId: string, exitIdx: number): string | un
   const def = getCardDef(ctx.content, card.defId);
   const exit = def.topExits[exitIdx];
   if (!exit) throw new Error(`exploreExit: no exit ${exitIdx}`);
-  const row = card.row + 1;
-  const col = card.col + exit.dCol;
+  const { row, col } = brickAbove(card.row, card.col, exit.side);
 
   const existing = ctx.draft.grid[gridKey(row, col)];
   if (existing !== undefined) {
@@ -108,6 +112,9 @@ export function stealthMove(ctx: Ctx, heroIdx: number, route: string[]): void {
       throw new Error(`StealthMove: section ${step} is chokepoint-blocked`);
     cur = step;
   }
+  const dest = route[route.length - 1];
+  if (dest !== undefined && sectionFull(ctx.content, ctx.draft, hero.cardId, dest))
+    throw new Error(`StealthMove: destination ${dest} is at occupant capacity`);
 
   ctx.emit({ kind: 'ApSpent', heroIdx, amount: config.costs.moveSection });
 
@@ -147,6 +154,7 @@ export function stealthMove(ctx: Ctx, heroIdx: number, route: string[]): void {
     raiseAlertFloor(ctx, hero.cardId, config.alert.floorZoneShare, 'zone-share with committed enemy');
     resolveOneEnemyReaction(ctx, hero.cardId);
   }
+  if (reached > 0) checkAmbushes(ctx, heroIdx); // moving near a nook can spring it
 }
 
 /** Re-hide: 1 AP + stealth roll; needs no awake enemy in the section. */

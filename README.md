@@ -35,10 +35,21 @@ npm run sim            # balance simulations → reports/*.csv
 npm run sim:sweep      # config-knob calibration sweeps → reports/sweep.csv
 ```
 
+## Card topology
+
+Each card lays its zones out in up to three bands — **entry** (bottom, 1–2 zones), **core** (middle),
+**exit** (top, 1–2 zones). Exits are separate from top zones: an exit anchors to an exit zone and leads
+to the left or right **brick above**; a top zone can exist with no exit. Every connected component of a
+card's zone graph must hold an entry and a live exit (no orphan zones, no dead ends, every entry reaches
+an exit). Some cards carry **hiding nooks** (limited occupants) that may conceal an **ambusher** — rolled
+when a hero steps into an adjacent zone. Special cards like the **overpass** keep their two halves
+disjoint, joined only by a `climb` **barrier edge** (crossable only by a special move — not yet in v0).
+
 ## v0 simplifications (vs full design)
 
 - Exploration is forward-only (no backtracking links); biome-edge matching is trivial because the
   scenario is single-biome — walls only appear when a tile pool runs dry.
+- Barrier edges (climb/jump) render but aren't crossable yet — no special-move abilities in v0.
 - Identity tokens, factions, gates/subgraphs, escort/social layers: not yet implemented (Phase 3).
 - Balance numbers are first-pass calibration targets (`engine/config.ts`); current sims show solo
   play is too lethal — tune via `npm run sim`, not ad hoc.

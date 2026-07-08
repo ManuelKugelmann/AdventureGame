@@ -5,33 +5,58 @@ import {
   type CardInstance,
   type Command,
   type ContentDB,
+  type Row,
+  type SectionDef,
 } from '../engine/index';
 import { useStore, legalForActive } from './store';
 
 const CARD_W = 300;
-const CARD_H = 170;
+const CARD_H = 180;
 const GAP = 26;
 const SECTION_PAD = 8;
+const BODY_TOP = 26; // below the card name
+const BODY_BOT = 8;
 
 const COVER_GLYPH = { open: '○ open', partial: '◐ partial', covered: '● covered' } as const;
 const COVER_FILL = { open: '#3b3f2e', partial: '#33402f', covered: '#28372f' } as const;
 const ALERT_COLORS = ['#4a5a4a', '#c9a227', '#d9702b', '#cc3333'] as const;
+/** vertical stacking of zone bands within a card: exits on top, entry at bottom */
+const ROW_ORDER: Row[] = ['exit', 'core', 'entry'];
 
 function cardXY(card: CardInstance): { x: number; y: number } {
   return { x: (card.col + card.row * 0.5) * (CARD_W + GAP), y: -card.row * (CARD_H + GAP) };
 }
 
 interface SectionGeom {
-  sectionId: string;
+  section: SectionDef;
   x: number;
+  y: number;
   w: number;
+  h: number;
 }
 
+/** Lay zones out in up-to-three horizontal bands (exit/core/entry), each split full or left/right. */
 function sectionGeoms(content: ContentDB, card: CardInstance): SectionGeom[] {
   const def = getCardDef(content, card.defId);
-  const n = def.sections.length;
-  const w = (CARD_W - SECTION_PAD * (n + 1)) / n;
-  return def.sections.map((s, i) => ({ sectionId: s.id, x: SECTION_PAD + i * (w + SECTION_PAD), w }));
+  const present = ROW_ORDER.filter((r) => def.sections.some((s) => s.row === r));
+  const rowH = (CARD_H - BODY_TOP - BODY_BOT) / Math.max(1, present.length);
+  const halfW = (CARD_W - 3 * SECTION_PAD) / 2;
+  return def.sections.map((s) => {
+    const y = BODY_TOP + present.indexOf(s.row) * rowH;
+    let x = SECTION_PAD;
+    let w = CARD_W - 2 * SECTION_PAD;
+    if (s.col === 'left') w = halfW;
+    else if (s.col === 'right') {
+      w = halfW;
+      x = CARD_W - SECTION_PAD - halfW;
+    }
+    let rect = { x, y, w, h: rowH - SECTION_PAD };
+    if (s.hiding) {
+      const ins = 12; // a nook: drawn smaller and inset
+      rect = { x: rect.x + ins, y: rect.y + 4, w: rect.w - 2 * ins, h: rect.h - 8 };
+    }
+    return { section: s, ...rect };
+  });
 }
 
 export function Board(): JSX.Element {
@@ -91,14 +116,14 @@ export function Board(): JSX.Element {
                   stroke="#555"
                 />
               ))}
-              {/* exits */}
+              {/* exits — separate from top zones; a top zone may carry none */}
               {def.topExits.map((exit, exitIdx) => {
-                const geom = geoms.find((g) => g.sectionId === exit.section);
+                const geom = geoms.find((g) => g.section.id === exit.section);
                 if (!geom) return null;
                 const walled = card.blockedExits.includes(exitIdx);
                 const explored = card.exploredExits[exitIdx] !== undefined;
                 return (
-                  <Group key={exitIdx} x={geom.x + geom.w / 2} y={0} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
+                  <Group key={exitIdx} x={geom.x + geom.w / 2} y={geom.y - 6} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
                     <Line
                       points={walled ? [-10, 2, 10, 2] : [-9, 4, 0, -8, 9, 4]}
                       closed={!walled}
@@ -106,35 +131,36 @@ export function Board(): JSX.Element {
                       stroke={walled ? '#884444' : '#3a3'}
                       strokeWidth={walled ? 4 : 1}
                     />
-                    {!walled && <Text text={explored ? '↑' : '↑?'} x={-8} y={-26} fontSize={13} fill="#c9c9a0" />}
+                    {!walled && <Text text={`${exit.side === 'left' ? '↖' : '↗'}${explored ? '' : '?'}`} x={-8} y={-22} fontSize={13} fill="#c9c9a0" />}
                   </Group>
                 );
               })}
-              {/* sections */}
+              {/* zones — up to three bands (exit / core / entry) */}
               {geoms.map((geom) => {
-                const sDef = def.sections.find((s) => s.id === geom.sectionId);
-                if (!sDef) return null;
-                const heroesHere = state.heroes.filter((h) => !h.downed && h.cardId === card.id && h.section === geom.sectionId);
+                const sDef = geom.section;
+                const heroesHere = state.heroes.filter((h) => !h.downed && h.cardId === card.id && h.section === sDef.id);
                 const enemiesHere = Object.values(state.enemies)
-                  .filter((e) => e.cardId === card.id && e.section === geom.sectionId)
+                  .filter((e) => e.cardId === card.id && e.section === sDef.id)
                   .sort((a, b) => a.id.localeCompare(b.id));
-                const slotStates = sDef.slots.map((_, i) => !!card.usedSlots[`${geom.sectionId}:${i}`]);
-                const isActiveHere = hero && hero.cardId === card.id && hero.section === geom.sectionId;
+                const slotStates = sDef.slots.map((_, i) => !!card.usedSlots[`${sDef.id}:${i}`]);
+                const isActiveHere = hero && hero.cardId === card.id && hero.section === sDef.id;
+                const tokenY = geom.h - 16;
                 return (
-                  <Group key={geom.sectionId} x={geom.x} y={28} onClick={() => tryMove(card.id, geom.sectionId)} onTap={() => tryMove(card.id, geom.sectionId)}>
+                  <Group key={sDef.id} x={geom.x} y={geom.y} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
                     <Rect
                       width={geom.w}
-                      height={CARD_H - 38}
-                      fill={COVER_FILL[sDef.cover]}
-                      stroke={isActiveHere ? '#e8d44d' : '#47543f'}
+                      height={geom.h}
+                      fill={sDef.hiding ? '#2b2e22' : COVER_FILL[sDef.cover]}
+                      stroke={isActiveHere ? '#e8d44d' : sDef.hiding ? '#6b5a3a' : '#47543f'}
                       strokeWidth={isActiveHere ? 2.5 : 1}
                       cornerRadius={6}
+                      dash={sDef.hiding ? [5, 3] : undefined}
                     />
-                    <Text text={geom.sectionId} x={5} y={5} fontSize={11} fill="#b8c4a8" width={geom.w - 10} ellipsis wrap="none" />
-                    <Text text={`${COVER_GLYPH[sDef.cover]}  ⋔${sDef.chokepoint}`} x={5} y={20} fontSize={10} fill="#8a967e" />
+                    <Text text={`${sDef.hiding ? '🌿 ' : ''}${sDef.id}`} x={5} y={4} fontSize={11} fill="#b8c4a8" width={geom.w - 10} ellipsis wrap="none" />
+                    <Text text={`${COVER_GLYPH[sDef.cover]}  ⋔${sDef.chokepoint}${sDef.capacity ? `  ◱${sDef.capacity}` : ''}`} x={5} y={18} fontSize={10} fill="#8a967e" />
                     {/* mystery slots */}
                     {sDef.slots.map((_, i) => (
-                      <Text key={i} text="❖" x={5 + i * 16} y={36} fontSize={13} fill={slotStates[i] ? '#4e584e' : '#7ec8e3'} />
+                      <Text key={i} text="❖" x={5 + i * 16} y={32} fontSize={13} fill={slotStates[i] ? '#4e584e' : '#7ec8e3'} />
                     ))}
                     {/* enemies */}
                     {enemiesHere.map((e, i) => {
@@ -143,8 +169,8 @@ export function Board(): JSX.Element {
                       return (
                         <Group
                           key={e.id}
-                          x={16 + i * 30}
-                          y={78}
+                          x={15 + i * 26}
+                          y={tokenY}
                           onClick={(evt) => {
                             evt.cancelBubble = true;
                             store.selectEnemy(selected ? undefined : e.id);
@@ -154,17 +180,17 @@ export function Board(): JSX.Element {
                             store.selectEnemy(selected ? undefined : e.id);
                           }}
                         >
-                          <Circle radius={12} fill={e.sleeper ? '#4e4668' : '#7d3434'} stroke={selected ? '#e8d44d' : '#222'} strokeWidth={selected ? 3 : 1} />
+                          <Circle radius={11} fill={e.sleeper ? '#4e4668' : '#7d3434'} stroke={selected ? '#e8d44d' : '#222'} strokeWidth={selected ? 3 : 1} />
                           <Text text={e.sleeper ? '💤' : (eDef?.name[0] ?? '?')} x={-5} y={-6} fontSize={11} fill="#e8dcc8" />
-                          <Text text={'♥'.repeat(Math.max(0, (eDef?.states.length ?? 1) - e.stateIdx))} x={-12} y={14} fontSize={9} fill="#d98080" />
+                          <Text text={'♥'.repeat(Math.max(0, (eDef?.states.length ?? 1) - e.stateIdx))} x={-12} y={12} fontSize={9} fill="#d98080" />
                         </Group>
                       );
                     })}
                     {/* heroes */}
                     {heroesHere.map((h, i) => (
-                      <Group key={h.idx} x={geom.w - 18 - i * 28} y={78}>
+                      <Group key={h.idx} x={geom.w - 15 - i * 26} y={tokenY}>
                         <Circle
-                          radius={12}
+                          radius={11}
                           fill={h.idx === state.activeHeroIdx ? '#2d6a4f' : '#40556a'}
                           stroke={h.detected ? '#cc3333' : '#88b088'}
                           strokeWidth={2.5}
@@ -176,6 +202,24 @@ export function Board(): JSX.Element {
                   </Group>
                 );
               })}
+              {/* barrier links (climb/jump) — drawn on top; not walkable in v0 */}
+              {def.sectionEdges
+                .filter((e) => e.requires !== undefined)
+                .map((e, i) => {
+                  const a = geoms.find((g) => g.section.id === e.a);
+                  const b = geoms.find((g) => g.section.id === e.b);
+                  if (!a || !b) return null;
+                  const ax = a.x + a.w / 2;
+                  const ay = a.y + a.h / 2;
+                  const bx = b.x + b.w / 2;
+                  const by = b.y + b.h / 2;
+                  return (
+                    <Group key={`bar${i}`} listening={false}>
+                      <Line points={[ax, ay, bx, by]} stroke="#8a6d3b" strokeWidth={2} dash={[4, 4]} />
+                      <Text text={`⛰ ${e.requires}`} x={(ax + bx) / 2 - 16} y={(ay + by) / 2 - 6} fontSize={9} fill="#c8a86a" />
+                    </Group>
+                  );
+                })}
             </Group>
           );
         })}

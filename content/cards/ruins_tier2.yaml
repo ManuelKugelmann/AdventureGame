@@ -4,13 +4,12 @@ cards:
     biome: ruins
     tier: 2
     sections:
-      - { id: descent, cover: partial, chokepoint: 2, slots: [] }
-      - { id: ossuary, cover: covered, chokepoint: 2, slots: [{ kind: mystery }, { kind: mystery }] }
+      - { id: descent, row: entry, col: full, cover: partial, chokepoint: 2 }
+      - { id: ossuary, row: exit, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }, { kind: mystery }] }
     sectionEdges:
       - { a: descent, b: ossuary }
-    entrySection: descent
     topExits:
-      - { section: ossuary, dCol: 0 }
+      - { section: ossuary, side: right }
     spawns:
       - { enemy: shade, section: ossuary }
 
@@ -19,13 +18,12 @@ cards:
     biome: ruins
     tier: 2
     sections:
-      - { id: base, cover: open, chokepoint: 3, slots: [] }
-      - { id: stairwell, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+      - { id: base, row: entry, col: full, cover: open, chokepoint: 3 }
+      - { id: stairwell, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: base, b: stairwell }
-    entrySection: base
     topExits:
-      - { section: stairwell, dCol: 0 }
+      - { section: stairwell, side: right }
     spawns:
       - { enemy: cultist, section: base }
       - { enemy: shade, section: stairwell }
@@ -35,13 +33,12 @@ cards:
     biome: ruins
     tier: 2
     sections:
-      - { id: copy_hall, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
-      - { id: archive, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: copy_hall, row: entry, col: full, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
+      - { id: archive, row: exit, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: copy_hall, b: archive }
-    entrySection: copy_hall
     topExits:
-      - { section: archive, dCol: 1 }
+      - { section: archive, side: right }
     spawns:
       - { enemy: ghoul, section: copy_hall }
 
@@ -50,12 +47,14 @@ cards:
     biome: ruins
     tier: 2
     sections:
-      - { id: antechamber, cover: partial, chokepoint: 2, slots: [] }
-      - { id: sanctum, cover: covered, chokepoint: 3, slots: [{ kind: mystery }, { kind: mystery }] }
+      - { id: antechamber, row: entry, col: full, cover: partial, chokepoint: 2 }
+      # a shadowed alcove behind the sanctum — a shade lies in wait
+      - { id: alcove, row: core, col: right, cover: covered, chokepoint: 1, hiding: true, capacity: 1, ambush: { enemy: shade, chancePct: 65 } }
+      - { id: sanctum, row: exit, col: full, cover: covered, chokepoint: 3, slots: [{ kind: mystery }, { kind: mystery }] }
     sectionEdges:
       - { a: antechamber, b: sanctum }
-    entrySection: antechamber
+      - { a: antechamber, b: alcove }
     topExits:
-      - { section: sanctum, dCol: 0 }
+      - { section: sanctum, side: right }
     spawns:
       - { enemy: stone_golem, section: sanctum, sleeper: true }

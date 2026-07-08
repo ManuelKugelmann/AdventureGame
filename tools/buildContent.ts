@@ -17,6 +17,9 @@ import {
   ScenarioDefSchema,
   StoryCardDefSchema,
   SymbolCardDefSchema,
+  entrySectionsOf,
+  exitSectionIds,
+  normalEdges,
   type CardDef,
   type ContentDB,
 } from '../engine/index';
@@ -78,36 +81,68 @@ for (const file of yamlFiles(contentDir)) {
 function checkCard(card: CardDef): void {
   const sectionIds = new Set(card.sections.map((s) => s.id));
   if (sectionIds.size !== card.sections.length) fail(`card ${card.id}: duplicate section ids`);
-  if (!sectionIds.has(card.entrySection)) fail(`card ${card.id}: entrySection '${card.entrySection}' missing`);
   for (const e of card.sectionEdges) {
     if (!sectionIds.has(e.a) || !sectionIds.has(e.b)) fail(`card ${card.id}: edge ${e.a}-${e.b} references unknown section`);
   }
-  for (const exit of card.topExits) {
-    if (!sectionIds.has(exit.section)) fail(`card ${card.id}: exit section '${exit.section}' missing`);
-  }
+
+  const entries = entrySectionsOf(card);
+  if (entries.length < 1 || entries.length > 2) fail(`card ${card.id}: must have 1-2 entry zones (has ${entries.length})`);
   if (card.topExits.length === 0) fail(`card ${card.id}: no forward exit`);
+  for (const exit of card.topExits) {
+    const sec = card.sections.find((s) => s.id === exit.section);
+    if (!sec) fail(`card ${card.id}: exit section '${exit.section}' missing`);
+    else if (sec.row !== 'exit') fail(`card ${card.id}: exit anchors to non-exit zone '${exit.section}' (row=${sec.row})`);
+  }
+
+  for (const s of card.sections) {
+    if (s.ambush && !s.hiding) fail(`card ${card.id}: zone '${s.id}' has an ambush but is not a hiding zone`);
+    if (s.ambush && !db.enemies[s.ambush.enemy]) fail(`card ${card.id}: zone '${s.id}' ambush references unknown enemy '${s.ambush.enemy}'`);
+  }
+  // one full-width zone per row, or up to one left + one right — no mixing
+  for (const row of ['entry', 'core', 'exit'] as const) {
+    const inRow = card.sections.filter((s) => s.row === row);
+    if (inRow.length > 1 && inRow.some((s) => s.col === 'full'))
+      fail(`card ${card.id}: row '${row}' mixes a full-width zone with others`);
+    if (inRow.filter((s) => s.col === 'left').length > 1 || inRow.filter((s) => s.col === 'right').length > 1)
+      fail(`card ${card.id}: row '${row}' has duplicate left/right zones`);
+  }
+
   for (const spawn of card.spawns) {
     if (!db.enemies[spawn.enemy]) fail(`card ${card.id}: spawn references unknown enemy '${spawn.enemy}'`);
     if (!sectionIds.has(spawn.section)) fail(`card ${card.id}: spawn section '${spawn.section}' missing`);
   }
-  // section graph connectivity (edges are bidirectional)
-  const seen = new Set<string>([card.entrySection]);
-  const queue = [card.entrySection];
-  while (queue.length > 0) {
-    const cur = queue.pop();
-    for (const e of card.sectionEdges) {
-      for (const [a, b] of [
-        [e.a, e.b],
-        [e.b, e.a],
-      ] as const) {
-        if (a === cur && !seen.has(b)) {
-          seen.add(b);
-          queue.push(b);
+
+  // Connectivity over NORMAL edges only (barrier `requires` edges excluded, so an
+  // overpass's two halves stay separate components). Rule: every connected
+  // component must contain ≥1 entry zone AND ≥1 zone with a live exit. That single
+  // check enforces: no orphan zones, no dead ends, and every entry reaches an exit.
+  const adj = new Map<string, string[]>(card.sections.map((s) => [s.id, [] as string[]]));
+  for (const e of normalEdges(card)) {
+    adj.get(e.a)?.push(e.b);
+    adj.get(e.b)?.push(e.a);
+  }
+  const entryIds = new Set(entries.map((s) => s.id));
+  const exitIds = exitSectionIds(card);
+  const visited = new Set<string>();
+  for (const start of card.sections) {
+    if (visited.has(start.id)) continue;
+    const comp: string[] = [];
+    const stack = [start.id];
+    visited.add(start.id);
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (cur === undefined) break;
+      comp.push(cur);
+      for (const n of adj.get(cur) ?? []) {
+        if (!visited.has(n)) {
+          visited.add(n);
+          stack.push(n);
         }
       }
     }
+    if (!comp.some((id) => entryIds.has(id))) fail(`card ${card.id}: zones [${comp.join(',')}] unreachable from any entry`);
+    if (!comp.some((id) => exitIds.has(id))) fail(`card ${card.id}: zones [${comp.join(',')}] cannot reach an exit (dead end)`);
   }
-  if (seen.size !== card.sections.length) fail(`card ${card.id}: section graph disconnected (reached ${[...seen].join(',')})`);
 }
 
 for (const card of Object.values(db.cards)) checkCard(card);

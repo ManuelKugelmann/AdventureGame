@@ -63,6 +63,14 @@ export interface GameConfig {
     /** damage an enemy attack deals per net hit */
     damagePerNetHit: number;
   };
+  hiding: {
+    /** default occupant cap for a hiding zone when the content omits one */
+    defaultCapacity: number;
+  };
+  ambush: {
+    /** default chance an ambusher springs when a hero enters an adjacent zone */
+    defaultChancePct: number;
+  };
   resolution: {
     /** aspect matches (of who/where/how) required for full / partial success */
     fullMatches: number;
@@ -101,6 +109,8 @@ export const config: GameConfig = {
     allowAttackIntoBlockedSection: true,
   },
   enemy: { moveSpeed: 1, damagePerNetHit: 1 },
+  hiding: { defaultCapacity: 1 },
+  ambush: { defaultChancePct: 50 },
   resolution: { fullMatches: 3, partialMatches: 2 },
   debug: { freezeState: true },
 };

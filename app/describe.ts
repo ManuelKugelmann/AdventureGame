@@ -46,6 +46,8 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
       return `Something stirs awake…`;
     case 'EncounterSpawned':
       return `Encounter!`;
+    case 'AmbushResolved':
+      return ev.enemyId ? `⚔ Ambush! Something bursts from hiding.` : undefined;
     case 'TokenDrawn':
       return `Found: ${content.mysteryTokens[ev.tokenId]?.name ?? ev.tokenId}`;
     case 'RuneTriggered':

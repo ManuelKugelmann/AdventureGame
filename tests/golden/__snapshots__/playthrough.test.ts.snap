@@ -2,10 +2,9 @@
 
 exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded run 1`] = `
 {
-  "cardsPlaced": 2,
+  "cardsPlaced": 4,
   "clues": {
     "how": "dagger",
-    "where": "crypt",
     "who": "prior_amos",
   },
   "commands": [
@@ -21,21 +20,12 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
       "kind": "EndTurn",
     },
     {
-      "kind": "MoveSection",
-      "toSection": "cloister_wall",
-    },
-    {
-      "exitIdx": 0,
-      "kind": "CrossExit",
-    },
-    {
-      "kind": "MoveSection",
-      "toSection": "colonnade",
-    },
-    {
-      "ap": 1,
+      "ap": 3,
       "kind": "Attack",
-      "targetId": "e2",
+      "targetId": "e1",
+    },
+    {
+      "kind": "ReHide",
     },
     {
       "kind": "EndTurn",
@@ -44,6 +34,9 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
       "ap": 3,
       "kind": "Attack",
       "targetId": "e2",
+    },
+    {
+      "kind": "ReHide",
     },
     {
       "kind": "EndTurn",
@@ -53,110 +46,34 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
       "kind": "CrossExit",
     },
     {
-      "ap": 1,
-      "kind": "Attack",
-      "targetId": "e3",
-    },
-    {
-      "kind": "EndTurn",
-    },
-    {
-      "ap": 3,
-      "kind": "Attack",
-      "targetId": "e3",
-    },
-    {
-      "kind": "EndTurn",
-    },
-    {
-      "ap": 3,
-      "kind": "Attack",
-      "targetId": "e2",
+      "kind": "MoveSection",
+      "toSection": "shed",
     },
     {
       "kind": "Inspect",
       "slotIdx": 0,
     },
     {
-      "kind": "ReHide",
+      "exitIdx": 0,
+      "kind": "CrossExit",
     },
     {
       "kind": "EndTurn",
     },
     {
-      "kind": "ReHide",
+      "kind": "Inspect",
+      "slotIdx": 0,
     },
     {
-      "kind": "ReHide",
+      "kind": "MoveSection",
+      "toSection": "cistern",
     },
     {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "EndTurn",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "EndTurn",
-    },
-    {
-      "ap": 3,
-      "kind": "Attack",
-      "targetId": "e4",
+      "exitIdx": 0,
+      "kind": "CrossExit",
     },
     {
       "ap": 1,
-      "kind": "Attack",
-      "targetId": "e5",
-    },
-    {
-      "kind": "EndTurn",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "EndTurn",
-    },
-    {
-      "ap": 2,
-      "kind": "Attack",
-      "targetId": "e5",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "ReHide",
-    },
-    {
-      "kind": "EndTurn",
-    },
-    {
-      "ap": 2,
       "kind": "Attack",
       "targetId": "e6",
     },
@@ -164,27 +81,34 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
       "kind": "EndTurn",
     },
     {
-      "ap": 3,
-      "kind": "Attack",
-      "targetId": "e6",
+      "kind": "ReHide",
     },
     {
-      "ap": 1,
-      "kind": "Attack",
-      "targetId": "e7",
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
     },
     {
       "kind": "EndTurn",
     },
     {
-      "ap": 2,
-      "kind": "Attack",
-      "targetId": "e7",
+      "kind": "ReHide",
     },
     {
-      "ap": 2,
-      "kind": "Attack",
-      "targetId": "e7",
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
     },
     {
       "kind": "ReHide",
@@ -195,12 +119,43 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
     {
       "ap": 3,
       "kind": "Attack",
+      "targetId": "e7",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "ReHide",
+    },
+    {
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
+      "kind": "Attack",
+      "targetId": "e8",
+    },
+    {
+      "ap": 2,
+      "kind": "Attack",
       "targetId": "e9",
     },
     {
-      "ap": 1,
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
       "kind": "Attack",
-      "targetId": "e9",
+      "targetId": "e12",
     },
     {
       "kind": "EndTurn",
@@ -211,9 +166,12 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
       "targetId": "e10",
     },
     {
-      "ap": 1,
+      "kind": "EndTurn",
+    },
+    {
+      "ap": 3,
       "kind": "Attack",
-      "targetId": "e8",
+      "targetId": "e10",
     },
     {
       "kind": "EndTurn",
@@ -224,44 +182,48 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
       "targetId": "e11",
     },
     {
-      "ap": 2,
+      "ap": 1,
       "kind": "Attack",
-      "targetId": "e11",
+      "targetId": "e13",
     },
     {
       "kind": "EndTurn",
     },
   ],
   "eventCounts": {
-    "AlertChanged": 16,
-    "ApSpent": 42,
-    "AttackRolled": 19,
-    "CardCountersTicked": 18,
-    "CardPlaced": 1,
-    "ClueRevealed": 3,
-    "EncounterSpawned": 7,
-    "EnemiesReset": 9,
-    "EnemyActed": 16,
-    "EnemyAttackRolled": 16,
-    "EnemyDefeated": 7,
+    "AlertChanged": 23,
+    "AmbushResolved": 1,
+    "ApSpent": 36,
+    "AttackRolled": 11,
+    "CardCountersTicked": 24,
+    "CardPlaced": 3,
+    "ClueRevealed": 2,
+    "EncounterSpawned": 8,
+    "EnemiesReset": 7,
+    "EnemyActed": 15,
+    "EnemyAttackRolled": 11,
+    "EnemyDefeated": 8,
     "EnemyMoved": 4,
-    "EnemySpawned": 12,
-    "EnemyStateSwapped": 3,
+    "EnemySpawned": 14,
+    "EnemyStateSwapped": 2,
     "GameEnded": 1,
-    "HeroDamaged": 9,
+    "HeroDamaged": 8,
     "HeroDetected": 2,
     "HeroDowned": 2,
-    "Moved": 5,
+    "HeroHealed": 1,
+    "Moved": 6,
     "PhaseAdvanced": 1,
-    "RoundEnded": 9,
-    "RoundStarted": 10,
-    "SlotUsed": 2,
+    "RoundEnded": 7,
+    "RoundStarted": 8,
+    "RuneTriggered": 1,
+    "SlotUsed": 3,
     "StealthRolled": 16,
-    "StoryCardDrawn": 9,
-    "TilePoolDrawn": 1,
-    "TokenDrawn": 2,
-    "TurnEnded": 17,
-    "TurnStarted": 17,
+    "StoryCardDrawn": 7,
+    "SymbolFired": 1,
+    "TilePoolDrawn": 3,
+    "TokenDrawn": 3,
+    "TurnEnded": 14,
+    "TurnStarted": 14,
   },
   "finalHeroes": [
     {
@@ -280,6 +242,6 @@ exports[`golden playthrough (seed 7, warden+shadowfoot) > matches the recorded r
     "kind": "loss",
   },
   "phaseIdx": 1,
-  "rounds": 10,
+  "rounds": 8,
 }
 `;

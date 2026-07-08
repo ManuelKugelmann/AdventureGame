@@ -54,6 +54,7 @@ export function applyEventMut(draft: GameState, ev: GameEvent): void {
         usedSlots: {},
         blockedExits: [],
         exploredExits: {},
+        sprungAmbushes: [],
       };
       draft.grid[gridKey(ev.row, ev.col)] = ev.cardId;
       getCard(draft, ev.fromCardId).exploredExits[ev.exitIdx] = ev.cardId;
@@ -149,6 +150,9 @@ export function applyEventMut(draft: GameState, ev: GameEvent): void {
       break;
     case 'EncounterSpawned':
       break; // followed by EnemySpawned events
+    case 'AmbushResolved':
+      getCard(draft, ev.cardId).sprungAmbushes.push(ev.section); // spring once, hit or miss
+      break;
     case 'SlotUsed':
       getCard(draft, ev.cardId).usedSlots[`${ev.section}:${ev.slotIdx}`] = true;
       break;

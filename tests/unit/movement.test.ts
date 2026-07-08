@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyCommand, legalCommands, makeRng } from '../../engine/index';
+import { applyCommand, legalCommands, makeRng, primaryEntry } from '../../engine/index';
 import type { EnemyInstance, GameState } from '../../engine/index';
 import { content, fixedRng, newGame, BLANK, HIT } from '../helpers';
 
@@ -70,7 +70,7 @@ describe('CrossExit', () => {
     expect(placed.row).toBe(1);
     const heroAfter = res.state.heroes[0]!;
     expect(heroAfter.cardId).toBe(placedId);
-    expect(heroAfter.section).toBe(content().cards[expectedDef]!.entrySection);
+    expect(heroAfter.section).toBe(primaryEntry(content().cards[expectedDef]!).id);
     expect(res.state.tilePools.tier1).not.toContain(placedId);
     expect(res.events.some((e) => e.kind === 'CardPlaced')).toBe(true);
   });

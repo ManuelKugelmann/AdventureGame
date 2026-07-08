@@ -1,7 +1,7 @@
 import type { ContentDB } from '../model/content';
-import { getCardDef, getSectionDef } from '../model/content';
+import { entryLanding, getCardDef, getSectionDef, normalEdges } from '../model/content';
 import type { GameState } from '../model/state';
-import { enemiesIn, getCard } from '../model/state';
+import { enemiesIn, getCard, occupantsIn } from '../model/state';
 import { config } from '../config';
 
 /** A board position: card instance + section. */
@@ -14,11 +14,11 @@ export function posKey(p: Pos): string {
   return `${p.cardId}/${p.section}`;
 }
 
-/** Sections adjacent to `section` within one card (def edges are bidirectional). */
+/** Sections adjacent to `section` within one card (bidirectional; barrier edges excluded). */
 export function adjacentSections(content: ContentDB, state: GameState, cardId: string, section: string): string[] {
   const def = getCardDef(content, getCard(state, cardId).defId);
   const out: string[] = [];
-  for (const e of def.sectionEdges) {
+  for (const e of normalEdges(def)) {
     if (e.a === section) out.push(e.b);
     if (e.b === section) out.push(e.a);
   }
@@ -40,7 +40,7 @@ export function linkedCards(content: ContentDB, state: GameState, cardId: string
   for (const [exitIdxStr, toCardId] of Object.entries(getCard(state, cardId).exploredExits)) {
     const exit = defOf(cardId).topExits[Number(exitIdxStr)];
     if (!exit) throw new Error(`card ${cardId} explored exit ${exitIdxStr} missing in def`);
-    out.push({ toCardId, viaSection: exit.section, toSection: defOf(toCardId).entrySection });
+    out.push({ toCardId, viaSection: exit.section, toSection: entryLanding(defOf(toCardId), exit.side).id });
   }
   for (const other of Object.values(state.cards)) {
     if (other.id === cardId) continue;
@@ -48,7 +48,8 @@ export function linkedCards(content: ContentDB, state: GameState, cardId: string
       if (toCardId !== cardId) continue;
       const exit = defOf(other.id).topExits[Number(exitIdxStr)];
       if (!exit) throw new Error(`card ${other.id} explored exit ${exitIdxStr} missing in def`);
-      out.push({ toCardId: other.id, viaSection: defOf(cardId).entrySection, toSection: exit.section });
+      // going back down: leave via the entry that matches the exit's side, arrive at its mouth
+      out.push({ toCardId: other.id, viaSection: entryLanding(defOf(cardId), exit.side).id, toSection: exit.section });
     }
   }
   return out;
@@ -104,6 +105,18 @@ export function sectionBlocked(content: ContentDB, state: GameState, cardId: str
   const def = getCardDef(content, getCard(state, cardId).defId);
   const sec = getSectionDef(def, section);
   return enemiesIn(state, cardId, section).length >= sec.chokepoint;
+}
+
+/** Occupant cap of a section: explicit, else config default for hiding zones, else unlimited. */
+export function sectionCapacity(content: ContentDB, state: GameState, cardId: string, section: string): number | undefined {
+  const sec = getSectionDef(getCardDef(content, getCard(state, cardId).defId), section);
+  return sec.capacity ?? (sec.hiding ? config.hiding.defaultCapacity : undefined);
+}
+
+/** True when a section is at/over its occupant cap (unlimited sections never are). */
+export function sectionFull(content: ContentDB, state: GameState, cardId: string, section: string): boolean {
+  const cap = sectionCapacity(content, state, cardId, section);
+  return cap !== undefined && occupantsIn(state, cardId, section) >= cap;
 }
 
 export function totalEnemies(state: GameState): number {

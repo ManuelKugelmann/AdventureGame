@@ -4,16 +4,15 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: gate_yard, cover: open, chokepoint: 3, slots: [] }
-      - { id: cloister_wall, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
-      - { id: postern, cover: partial, chokepoint: 2, slots: [] }
+      - { id: gate_yard, row: entry, col: full, cover: open, chokepoint: 3 }
+      - { id: cloister_wall, row: exit, col: left, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: postern, row: exit, col: right, cover: partial, chokepoint: 2 }
     sectionEdges:
       - { a: gate_yard, b: cloister_wall }
       - { a: gate_yard, b: postern }
-    entrySection: gate_yard
     topExits:
-      - { section: cloister_wall, dCol: 0 }
-      - { section: postern, dCol: 1 }
+      - { section: cloister_wall, side: left }
+      - { section: postern, side: right }
     spawns: []
 
   - id: cloister_garden
@@ -21,13 +20,12 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: garden, cover: open, chokepoint: 3, slots: [] }
-      - { id: colonnade, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: garden, row: entry, col: full, cover: open, chokepoint: 3 }
+      - { id: colonnade, row: exit, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: garden, b: colonnade }
-    entrySection: garden
     topExits:
-      - { section: colonnade, dCol: 0 }
+      - { section: colonnade, side: right }
     spawns:
       - { enemy: cultist, section: colonnade }
 
@@ -36,15 +34,14 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: hall, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
-      - { id: kitchen, cover: covered, chokepoint: 2, slots: [] }
-      - { id: pantry, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+      - { id: hall, row: entry, col: full, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
+      - { id: kitchen, row: core, col: full, cover: covered, chokepoint: 2 }
+      - { id: pantry, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: hall, b: kitchen }
       - { a: kitchen, b: pantry }
-    entrySection: hall
     topExits:
-      - { section: pantry, dCol: -1 }
+      - { section: pantry, side: left }
     spawns: []
 
   - id: chapel_ruin
@@ -52,17 +49,16 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: nave, cover: open, chokepoint: 4, slots: [] }
-      - { id: altar, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
-      - { id: vestry, cover: covered, chokepoint: 2, slots: [] }
+      - { id: nave, row: entry, col: full, cover: open, chokepoint: 4 }
+      - { id: altar, row: exit, col: right, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: vestry, row: exit, col: left, cover: covered, chokepoint: 2 }
     sectionEdges:
       - { a: nave, b: altar }
-      - { a: altar, b: vestry }
       - { a: nave, b: vestry }
-    entrySection: nave
+      - { a: altar, b: vestry }
     topExits:
-      - { section: altar, dCol: 0 }
-      - { section: vestry, dCol: -1 }
+      - { section: altar, side: right }
+      - { section: vestry, side: left }
     spawns:
       - { enemy: ghoul, section: nave }
 
@@ -71,13 +67,12 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: rubble, cover: partial, chokepoint: 2, slots: [] }
-      - { id: gallery, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: rubble, row: entry, col: full, cover: partial, chokepoint: 2 }
+      - { id: gallery, row: exit, col: full, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: rubble, b: gallery }
-    entrySection: rubble
     topExits:
-      - { section: gallery, dCol: 1 }
+      - { section: gallery, side: right }
     spawns:
       - { enemy: stone_golem, section: gallery, sleeper: true }
 
@@ -86,13 +81,12 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: wellhead, cover: open, chokepoint: 2, slots: [{ kind: mystery }] }
-      - { id: cistern, cover: covered, chokepoint: 1, slots: [] }
+      - { id: wellhead, row: entry, col: full, cover: open, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: cistern, row: exit, col: full, cover: covered, chokepoint: 1 }
     sectionEdges:
       - { a: wellhead, b: cistern }
-    entrySection: wellhead
     topExits:
-      - { section: cistern, dCol: 0 }
+      - { section: cistern, side: right }
     spawns: []
 
   - id: herb_garden
@@ -100,13 +94,15 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: beds, cover: open, chokepoint: 3, slots: [] }
-      - { id: shed, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+      - { id: beds, row: entry, col: full, cover: open, chokepoint: 3 }
+      # a briar thicket: a cramped nook (capacity 1) that may conceal a lurking ghoul
+      - { id: briar, row: core, col: left, cover: covered, chokepoint: 1, hiding: true, capacity: 1, ambush: { enemy: ghoul } }
+      - { id: shed, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: beds, b: shed }
-    entrySection: beds
+      - { a: beds, b: briar }
     topExits:
-      - { section: shed, dCol: -1 }
+      - { section: shed, side: left }
     spawns: []
 
   - id: dormitory
@@ -114,14 +110,34 @@ cards:
     biome: ruins
     tier: 1
     sections:
-      - { id: corridor, cover: partial, chokepoint: 2, slots: [] }
-      - { id: cells, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
-      - { id: stair, cover: partial, chokepoint: 1, slots: [] }
+      - { id: corridor, row: entry, col: full, cover: partial, chokepoint: 2 }
+      - { id: cells, row: core, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: stair, row: exit, col: full, cover: partial, chokepoint: 1 }
     sectionEdges:
       - { a: corridor, b: cells }
       - { a: corridor, b: stair }
-    entrySection: corridor
     topExits:
-      - { section: stair, dCol: 0 }
+      - { section: stair, side: right }
     spawns:
       - { enemy: cultist, section: corridor }
+
+  # special card: an overpass — two side-by-side paths that do NOT connect inside
+  # the card. Each entry reaches only its own span; the spans are joined only by a
+  # `climb` barrier edge (no special-move ability exists in v0, so it stays uncrossable).
+  - id: overpass
+    name: Broken Overpass
+    biome: ruins
+    tier: 1
+    sections:
+      - { id: south_ramp, row: entry, col: left, cover: partial, chokepoint: 2 }
+      - { id: north_ramp, row: entry, col: right, cover: partial, chokepoint: 2 }
+      - { id: west_span, row: exit, col: left, cover: open, chokepoint: 3, slots: [{ kind: mystery }] }
+      - { id: east_span, row: exit, col: right, cover: open, chokepoint: 3 }
+    sectionEdges:
+      - { a: south_ramp, b: west_span }
+      - { a: north_ramp, b: east_span }
+      - { a: west_span, b: east_span, requires: climb }
+    topExits:
+      - { section: west_span, side: left }
+      - { section: east_span, side: right }
+    spawns: []
