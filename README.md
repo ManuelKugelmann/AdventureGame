@@ -45,6 +45,11 @@ an exit). Some cards carry **hiding nooks** (limited occupants) that may conceal
 when a hero steps into an adjacent zone. Special cards like the **overpass** keep their two halves
 disjoint, joined only by a `climb` **barrier edge** (crossable only by a special move — not yet in v0).
 
+**Peek-ahead + doors**: standing in an unblocked exit's zone auto-reveals (and fully populates) the card
+beyond — see before you commit. Exits may carry a **blocker**: an **openable door** (open it to pass, or
+peek through first) or a **permanent grate** (peek through only, never crossable). Peeking through a
+blocker scouts the next card without opening it.
+
 ## v0 simplifications (vs full design)
 
 - Exploration is forward-only (no backtracking links); biome-edge matching is trivial because the
