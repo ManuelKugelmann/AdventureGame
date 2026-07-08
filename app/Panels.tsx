@@ -218,11 +218,11 @@ export function ResolutionPanel(): JSX.Element | null {
   );
 }
 
-const LOG_TOKENS = /(\[[▫▪✦]+\]|⚡+|[♥♡]+)/g;
+const LOG_TOKENS = /((?:\[[o+★]\])+|⚡+|[♥♡]+)/g;
 /** style dice, AP (⚡) and HP (♥♡) glyphs within a log line */
 function renderLogLine(line: string): (JSX.Element | string)[] {
   return line.split(LOG_TOKENS).map((part, j) => {
-    if (/^\[[▫▪✦]+\]$/.test(part)) return <span key={j} className="log-dice">{part}</span>;
+    if (/^(?:\[[o+★]\])+$/.test(part)) return <span key={j} className="log-dice">{part}</span>;
     if (/^⚡+$/.test(part)) return <span key={j} className="log-ap">{part}</span>;
     if (/^[♥♡]+$/.test(part)) return <span key={j} className="log-hp">{part}</span>;
     return part;

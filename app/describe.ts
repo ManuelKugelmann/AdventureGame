@@ -2,9 +2,10 @@ import type { ContentDB, GameEvent } from '../engine/index';
 import { zoneLabel } from './format';
 
 const hits = (n: number): string => `${n} hit${n === 1 ? '' : 's'}`;
-/** render the rolled dice faces: ▫ blank · ▪ hit · ✦ surge */
-const FACE = { blank: '▫', hit: '▪', surge: '✦' } as const;
-const dice = (r: { faces: readonly ('blank' | 'hit' | 'surge')[] }): string => (r.faces.length ? ` [${r.faces.map((f) => FACE[f]).join('')}]` : '');
+/** render rolled dice, each as a bracketed result: [o] blank · [+] hit · [★] surge */
+const FACE = { blank: 'o', hit: '+', surge: '★' } as const;
+const dice = (r: { faces: readonly ('blank' | 'hit' | 'surge')[] }): string =>
+  r.faces.length ? ' ' + r.faces.map((f) => `[${FACE[f]}]`).join('') : '';
 
 /** Human-readable one-liners for the event log. */
 export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: string[] = []): string | undefined {
