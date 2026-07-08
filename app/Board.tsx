@@ -225,6 +225,23 @@ export function Board(): JSX.Element {
                   </Group>
                 );
               })}
+              {/* linkage: connectors between joined zones (drawn behind the zones; visible in the gaps) */}
+              {def.sectionEdges
+                .filter((e) => e.requires === undefined)
+                .map((e, i) => {
+                  const a = geoms.find((g) => g.section.id === e.a);
+                  const b = geoms.find((g) => g.section.id === e.b);
+                  if (!a || !b) return null;
+                  return (
+                    <Line
+                      key={`edge${i}`}
+                      points={[a.x + a.w / 2, a.y + a.h / 2, b.x + b.w / 2, b.y + b.h / 2]}
+                      stroke="#586a54"
+                      strokeWidth={1.3}
+                      listening={false}
+                    />
+                  );
+                })}
               {/* zones — up to three bands (exit / core / entry) */}
               {geoms.map((geom) => {
                 const sDef = geom.section;

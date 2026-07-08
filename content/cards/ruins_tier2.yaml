@@ -5,7 +5,7 @@ cards:
     tier: 2
     sections:
       - { id: descent, row: entry, col: full, cover: partial, chokepoint: 2 }
-      - { id: ossuary, row: exit, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }, { kind: mystery }] }
+      - { id: ossuary, row: exit, col: right, cover: covered, chokepoint: 2, slots: [{ kind: mystery }, { kind: mystery }] }
     sectionEdges:
       - { a: descent, b: ossuary }
     topExits:
@@ -19,7 +19,7 @@ cards:
     tier: 2
     sections:
       - { id: base, row: entry, col: full, cover: open, chokepoint: 8 }
-      - { id: stairwell, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+      - { id: stairwell, row: exit, col: right, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: base, b: stairwell }
     topExits:
@@ -34,7 +34,7 @@ cards:
     tier: 2
     sections:
       - { id: copy_hall, row: entry, col: full, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
-      - { id: archive, row: exit, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: archive, row: exit, col: right, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: copy_hall, b: archive }
     topExits:
@@ -50,7 +50,7 @@ cards:
       - { id: antechamber, row: entry, col: full, cover: partial, chokepoint: 2 }
       # a shadowed alcove behind the sanctum — a shade lies in wait
       - { id: alcove, row: core, col: right, cover: covered, chokepoint: 1, hiding: true, capacity: 1, ambush: { enemy: shade, chancePct: 65 } }
-      - { id: sanctum, row: exit, col: full, cover: covered, chokepoint: 3, slots: [{ kind: mystery }, { kind: mystery }] }
+      - { id: sanctum, row: exit, col: right, cover: covered, chokepoint: 3, slots: [{ kind: mystery }, { kind: mystery }] }
     sectionEdges:
       - { a: antechamber, b: sanctum }
       - { a: antechamber, b: alcove }

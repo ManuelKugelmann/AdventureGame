@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   config,
   getHeroClassDef,
@@ -231,11 +231,16 @@ function renderLogLine(line: string): (JSX.Element | string)[] {
 
 export function LogPanel(): JSX.Element {
   const { log, error } = useStore();
+  const linesRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = linesRef.current;
+    if (el) el.scrollTop = el.scrollHeight; // keep pinned to newest
+  }, [log]);
   return (
     <div className="panel log-panel">
       <h3 title="Every event this game, newest at the bottom: turns, moves, rolls, damage, enemy activity, discoveries.">Chronicle</h3>
       {error && <div className="error">⚠ {error}</div>}
-      <div className="log-lines">
+      <div className="log-lines" ref={linesRef}>
         {log.slice(-60).map((line, i) => (
           <div key={i} className={line.startsWith('—') ? 'log-round' : ''}>{renderLogLine(line)}</div>
         ))}

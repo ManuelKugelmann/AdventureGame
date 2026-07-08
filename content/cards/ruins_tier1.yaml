@@ -21,7 +21,7 @@ cards:
     tier: 1
     sections:
       - { id: garden, row: entry, col: full, cover: open, chokepoint: 8 }
-      - { id: colonnade, row: exit, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: colonnade, row: exit, col: right, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: garden, b: colonnade }
     topExits:
@@ -36,7 +36,7 @@ cards:
     sections:
       - { id: hall, row: entry, col: full, cover: partial, chokepoint: 3, slots: [{ kind: mystery }] }
       - { id: kitchen, row: core, col: full, cover: covered, chokepoint: 2 }
-      - { id: pantry, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+      - { id: pantry, row: exit, col: left, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: hall, b: kitchen }
       - { a: kitchen, b: pantry }
@@ -68,7 +68,7 @@ cards:
     tier: 1
     sections:
       - { id: rubble, row: entry, col: full, cover: partial, chokepoint: 2 }
-      - { id: gallery, row: exit, col: full, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
+      - { id: gallery, row: exit, col: right, cover: partial, chokepoint: 2, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: rubble, b: gallery }
     topExits:
@@ -82,7 +82,7 @@ cards:
     tier: 1
     sections:
       - { id: wellhead, row: entry, col: full, cover: open, chokepoint: 6, slots: [{ kind: mystery }] }
-      - { id: cistern, row: exit, col: full, cover: covered, chokepoint: 1 }
+      - { id: cistern, row: exit, col: right, cover: covered, chokepoint: 1 }
     sectionEdges:
       - { a: wellhead, b: cistern }
     topExits:
@@ -97,7 +97,7 @@ cards:
       - { id: beds, row: entry, col: full, cover: open, chokepoint: 8 }
       # a briar thicket: a cramped nook (capacity 1) that may conceal a lurking ghoul
       - { id: briar, row: core, col: left, cover: covered, chokepoint: 1, hiding: true, capacity: 1, ambush: { enemy: ghoul } }
-      - { id: shed, row: exit, col: full, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
+      - { id: shed, row: exit, col: left, cover: covered, chokepoint: 1, slots: [{ kind: mystery }] }
     sectionEdges:
       - { a: beds, b: shed }
       - { a: beds, b: briar }
@@ -112,7 +112,7 @@ cards:
     sections:
       - { id: corridor, row: entry, col: full, cover: partial, chokepoint: 2 }
       - { id: cells, row: core, col: full, cover: covered, chokepoint: 2, slots: [{ kind: mystery }] }
-      - { id: stair, row: exit, col: full, cover: partial, chokepoint: 1 }
+      - { id: stair, row: exit, col: right, cover: partial, chokepoint: 1 }
     sectionEdges:
       - { a: corridor, b: cells }
       - { a: corridor, b: stair }
