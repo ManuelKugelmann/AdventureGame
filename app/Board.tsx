@@ -196,25 +196,28 @@ export function Board(): JSX.Element {
                 const opened = card.openedExits.includes(exitIdx);
                 const blocker = exit.blocker;
                 const blocked = !!blocker && !opened;
+                // action only when actually legal for the active hero
+                const canCross = legal.some((c) => c.kind === 'CrossExit' && c.exitIdx === exitIdx);
+                const canOpen = legal.some((c) => c.kind === 'OpenExit' && c.exitIdx === exitIdx);
+                const canPeek = legal.some((c) => c.kind === 'PeekExit' && c.exitIdx === exitIdx);
                 let exitInfo: string;
                 let exitAction: string | undefined;
                 if (walled) {
                   exitInfo = 'This exit is walled off.\n(The tile pool ran dry here.)';
-                  exitAction = undefined;
                 } else if (blocked && blocker) {
                   exitInfo = `${blocker.label}\n${
                     blocker.openable ? 'A shut door — open it to pass, or peek through.' : 'Sealed for good — you can only peek through.'
                   }`;
-                  exitAction = blocker.openable ? `open (${config.costs.crossExit} AP)` : `peek through (${config.costs.inspect} AP)`;
+                  exitAction = canOpen ? `open (${config.costs.crossExit} AP)` : canPeek ? `peek through (${config.costs.inspect} AP)` : undefined;
                 } else {
                   exitInfo = `Exit to the ${exit.side} brick above.${explored ? '\nAlready explored.' : ''}`;
-                  exitAction = explored ? 'cross' : 'explore';
+                  exitAction = canCross ? (explored ? 'cross' : 'explore') : undefined;
                 }
                 // anchor to the left/right brick above, never centered — even for a lone full-width exit
                 const exitX = exit.side === 'left' ? CARD_W * 0.25 : CARD_W * 0.75;
                 return (
                   <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitInfo, exitAction)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
-                    {/* triangle = exit; red bar = walled; door/grate glyph = blocked */}
+                    {/* triangle = exit; red bar = walled. The blocker (door/grate) is drawn inside its zone. */}
                     <Line
                       points={walled ? [-10, 2, 10, 2] : [-9, 5, 0, -9, 9, 5]}
                       closed={!walled}
@@ -222,9 +225,6 @@ export function Board(): JSX.Element {
                       stroke={walled ? '#884444' : '#7a6a1e'}
                       strokeWidth={walled ? 4 : 1}
                     />
-                    {blocked && blocker && (
-                      <Text text={blocker.openable ? '🚪' : '▦'} x={-7} y={-24} fontSize={14} />
-                    )}
                   </Group>
                 );
               })}
@@ -282,7 +282,10 @@ export function Board(): JSX.Element {
                       const slotInfo = used
                         ? 'Mystery cache ❖\nAlready searched.'
                         : 'Mystery cache ❖\nDraws a token: item, clue, trap, or rune.';
-                      const slotAction = used ? undefined : `Inspect (${config.costs.inspect} AP)`;
+                      const canInspect =
+                        !used && !!hero && hero.cardId === card.id && hero.section === sDef.id &&
+                        legal.some((c) => c.kind === 'Inspect' && c.slotIdx === i);
+                      const slotAction = canInspect ? `Inspect (${config.costs.inspect} AP)` : undefined;
                       return (
                         <Text
                           key={i}
@@ -303,6 +306,34 @@ export function Board(): JSX.Element {
                         />
                       );
                     })}
+                    {/* blockers (doors/grates) belong to the exit zone and are interacted with here */}
+                    {def.topExits.map((e, idx) => {
+                      if (e.section !== sDef.id || !e.blocker) return null;
+                      if (card.openedExits.includes(idx) || card.blockedExits.includes(idx)) return null;
+                      const blk = e.blocker;
+                      const canOpen = legal.some((c) => c.kind === 'OpenExit' && c.exitIdx === idx);
+                      const canPeek = legal.some((c) => c.kind === 'PeekExit' && c.exitIdx === idx);
+                      const bInfo = `${blk.label}\n${blk.openable ? 'A shut door — open to pass, or peek through.' : 'Sealed for good — peek through only.'}`;
+                      const bAction = canOpen ? `open (${config.costs.crossExit} AP)` : canPeek ? `peek through (${config.costs.inspect} AP)` : undefined;
+                      return (
+                        <Text
+                          key={`blk${idx}`}
+                          text={blk.openable ? '🚪' : '▦'}
+                          x={geom.w - 24}
+                          y={3}
+                          fontSize={18}
+                          {...showTip(bInfo, bAction)}
+                          onClick={(evt) => {
+                            evt.cancelBubble = true;
+                            tryExit(card.id, idx);
+                          }}
+                          onTap={(evt) => {
+                            evt.cancelBubble = true;
+                            tryExit(card.id, idx);
+                          }}
+                        />
+                      );
+                    })}
                     {/* enemies */}
                     {enemiesHere.map((e, i) => {
                       const eDef = content.enemies[e.defId];
@@ -318,7 +349,7 @@ export function Board(): JSX.Element {
                           key={e.id}
                           x={15 + i * 26}
                           y={tokenY}
-                          {...showTip(enemyInfo, e.sleeper ? 'Focus' : 'Focus & attack')}
+                          {...showTip(enemyInfo, legal.some((c) => c.kind === 'Attack' && c.targetId === e.id) ? 'focus & attack' : 'focus')}
                           onClick={(evt) => {
                             evt.cancelBubble = true;
                             store.selectEnemy(selected ? undefined : e.id);
