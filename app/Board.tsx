@@ -73,7 +73,7 @@ export function Board(): JSX.Element {
   const store = useStore();
   const { content, state } = store;
   const legal = useMemo(() => legalForActive(store), [store]);
-  const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null);
+  const [tip, setTip] = useState<{ info: string; action?: string; x: number; y: number } | null>(null);
   const [vp, setVp] = useState({ w: 1280, h: 800 });
   useEffect(() => {
     const onResize = (): void => setVp({ w: window.innerWidth, h: window.innerHeight });
@@ -90,15 +90,16 @@ export function Board(): JSX.Element {
     const s = e.target.getStage();
     if (s) s.container().style.cursor = c;
   };
-  const showTip = (text: string, clickable = false) => ({
+  // info = the descriptive box; action = what a click does (label sits at the pointer). action ⇒ clickable ⇒ hand cursor
+  const showTip = (info: string, action?: string) => ({
     onMouseEnter: (e: KonvaEventObject<MouseEvent>) => {
-      setTip({ text, x: e.evt.clientX, y: e.evt.clientY });
-      if (clickable) setCursor(e, 'pointer');
+      setTip({ info, action, x: e.evt.clientX, y: e.evt.clientY });
+      if (action) setCursor(e, 'pointer');
     },
-    onMouseMove: (e: KonvaEventObject<MouseEvent>) => setTip({ text, x: e.evt.clientX, y: e.evt.clientY }),
+    onMouseMove: (e: KonvaEventObject<MouseEvent>) => setTip((t) => (t ? { ...t, x: e.evt.clientX, y: e.evt.clientY } : t)),
     onMouseLeave: (e: KonvaEventObject<MouseEvent>) => {
       setTip(null);
-      if (clickable) setCursor(e, 'grab'); // back to the pannable-board cursor
+      if (action) setCursor(e, 'grab'); // back to the pannable-board cursor
     },
   });
 
@@ -186,13 +187,14 @@ export function Board(): JSX.Element {
                 if (!geom) return null;
                 const walled = card.blockedExits.includes(exitIdx);
                 const explored = card.exploredExits[exitIdx] !== undefined;
-                const exitTip = walled
+                const exitInfo = walled
                   ? 'This exit is walled off.\n(The tile pool ran dry here.)'
-                  : [`Exit to the ${exit.side} brick above`, explored ? 'Already explored.' : 'Click to explore what lies beyond.'].join('\n');
+                  : `Exit to the ${exit.side} brick above.${explored ? '\nAlready explored.' : ''}`;
+                const exitAction = walled ? undefined : explored ? 'Cross' : 'Explore';
                 // anchor to the left/right brick above, never centered — even for a lone full-width exit
                 const exitX = exit.side === 'left' ? CARD_W * 0.25 : CARD_W * 0.75;
                 return (
-                  <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitTip, true)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
+                  <Group key={exitIdx} x={exitX} y={geom.y - 6} {...showTip(exitInfo, exitAction)} onClick={() => tryExit(card.id, exitIdx)} onTap={() => tryExit(card.id, exitIdx)}>
                     {/* a plain triangle = an exit; a red bar = walled. Whether it's been explored is already visible from the card above. */}
                     <Line
                       points={walled ? [-10, 2, 10, 2] : [-9, 5, 0, -9, 9, 5]}
@@ -214,16 +216,25 @@ export function Board(): JSX.Element {
                 const slotStates = sDef.slots.map((_, i) => !!card.usedSlots[`${sDef.id}:${i}`]);
                 const isActiveHere = hero && hero.cardId === card.id && hero.section === sDef.id;
                 const tokenY = geom.h - 16;
+                const unsearched = slotStates.filter((u) => !u).length;
+                const contents = [
+                  ...enemiesHere.map((e) => {
+                    const eDef = content.enemies[e.defId];
+                    return `⚔ ${eDef?.name ?? e.defId}${e.sleeper ? ' (dormant 💤)' : ` — ${eDef?.states[e.stateIdx]?.name ?? '?'}`}`;
+                  }),
+                  ...heroesHere.map((h) => `♦ Player ${h.idx + 1} (${getHeroClassDef(content, h.classId).name})`),
+                  ...(unsearched > 0 ? [`❖ ${unsearched} unsearched cache${unsearched === 1 ? '' : 's'}`] : []),
+                ];
                 const zoneTip = [
                   `${zoneLabel(sDef.id)}${sDef.hiding ? ' (hiding nook)' : ''}`,
                   `${sDef.cover} cover — ${COVER_HINT[sDef.cover]}`,
                   `chokepoint ${sDef.chokepoint} — ${sDef.chokepoint}+ enemies here block passage`,
                   ...(sDef.capacity ? [`holds up to ${sDef.capacity} occupant${sDef.capacity === 1 ? '' : 's'}`] : []),
                   ...(sDef.ambush ? ['may conceal an ambusher'] : []),
-                  'Click to move here.',
+                  ...(contents.length > 0 ? ['', 'contents:', ...contents] : ['', 'empty']),
                 ].join('\n');
                 return (
-                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip, true)} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
+                  <Group key={sDef.id} x={geom.x} y={geom.y} {...showTip(zoneTip, 'Move here')} onClick={() => tryMove(card.id, sDef.id)} onTap={() => tryMove(card.id, sDef.id)}>
                     <Rect
                       width={geom.w}
                       height={geom.h}
@@ -238,9 +249,10 @@ export function Board(): JSX.Element {
                     {/* mystery slots — larger; click to inspect */}
                     {sDef.slots.map((_, i) => {
                       const used = slotStates[i];
-                      const slotTip = used
+                      const slotInfo = used
                         ? 'Mystery cache ❖\nAlready searched.'
-                        : ['Mystery cache ❖', `Click to inspect (${config.costs.inspect} AP)`, 'Draws a token: item, clue, trap, or rune.'].join('\n');
+                        : 'Mystery cache ❖\nDraws a token: item, clue, trap, or rune.';
+                      const slotAction = used ? undefined : `Inspect (${config.costs.inspect} AP)`;
                       return (
                         <Text
                           key={i}
@@ -249,7 +261,7 @@ export function Board(): JSX.Element {
                           y={30}
                           fontSize={19}
                           fill={used ? '#4e584e' : '#7ec8e3'}
-                          {...showTip(slotTip, used ? false : true)}
+                          {...showTip(slotInfo, slotAction)}
                           onClick={(evt) => {
                             evt.cancelBubble = true;
                             if (!used) tryInspect(card.id, sDef.id, i);
@@ -268,15 +280,15 @@ export function Board(): JSX.Element {
                       const total = eDef?.states.length ?? 1;
                       const remaining = Math.max(0, total - e.stateIdx);
                       const stateName = eDef?.states[e.stateIdx]?.name ?? '?';
-                      const enemyTip = e.sleeper
+                      const enemyInfo = e.sleeper
                         ? [`${eDef?.name ?? e.defId}`, 'Dormant 💤 — neutral until disturbed.', 'Sneak past, or strike first.'].join('\n')
-                        : [`${eDef?.name ?? e.defId}`, `${stateName} — ${remaining}/${total} health`, 'Click to focus, then Attack from the same zone.'].join('\n');
+                        : [`${eDef?.name ?? e.defId}`, `${stateName} — ${remaining}/${total} health`].join('\n');
                       return (
                         <Group
                           key={e.id}
                           x={15 + i * 26}
                           y={tokenY}
-                          {...showTip(enemyTip, true)}
+                          {...showTip(enemyInfo, e.sleeper ? 'Focus' : 'Focus & attack')}
                           onClick={(evt) => {
                             evt.cancelBubble = true;
                             store.selectEnemy(selected ? undefined : e.id);
@@ -340,9 +352,14 @@ export function Board(): JSX.Element {
         })}
       </Layer>
     </Stage>
+    {tip?.action && (
+      <div className="board-action" style={{ left: tip.x + 12, top: tip.y - 26 }}>
+        {tip.action}
+      </div>
+    )}
     {tip && (
-      <div className="board-tip" style={{ left: tip.x + 14, top: tip.y + 14 }}>
-        {tip.text}
+      <div className="board-tip" style={{ left: tip.x + 16, top: tip.y + 18 }}>
+        {tip.info}
       </div>
     )}
     </>
