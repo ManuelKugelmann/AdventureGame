@@ -1,5 +1,7 @@
 import type { ContentDB, GameEvent } from '../engine/index';
 
+const hits = (n: number): string => `${n} hit${n === 1 ? '' : 's'}`;
+
 /** Human-readable one-liners for the event log. */
 export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: string[] = []): string | undefined {
   const heroName = (idx: number): string => {
@@ -11,7 +13,7 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'RoundStarted':
       return `— Round ${ev.round} —`;
     case 'TurnStarted':
-      return `${heroName(ev.heroIdx)} starts turn with ${ev.ap} AP (rolled ${ev.apRoll.hits} hits)`;
+      return `${heroName(ev.heroIdx)} starts turn with ${ev.ap} AP (rolled ${hits(ev.apRoll.hits)})`;
     case 'Moved':
       return `${heroName(ev.heroIdx)} → ${ev.section}`;
     case 'CardPlaced':
@@ -25,9 +27,9 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'HeroHidden':
       return `${heroName(ev.heroIdx)} slips back into hiding`;
     case 'StealthRolled':
-      return `Stealth roll: ${ev.roll.hits} hits, budget ${ev.budget} vs cost ${ev.cost} — ${ev.success ? 'unseen' : 'FAILED'}`;
+      return `Stealth roll: ${hits(ev.roll.hits)}, budget ${ev.budget} vs cost ${ev.cost} — ${ev.success ? 'unseen' : 'FAILED'}`;
     case 'AttackRolled':
-      return `Attack: ${ev.roll.hits} hits → ${ev.netHits} net`;
+      return `Attack: ${hits(ev.roll.hits)} → ${ev.netHits} net`;
     case 'EnemyStateSwapped':
       return `Enemy wounded (state ${ev.fromStateIdx}→${ev.toStateIdx})`;
     case 'EnemyDefeated':
