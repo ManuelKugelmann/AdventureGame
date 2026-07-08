@@ -145,7 +145,7 @@ export function ActionsPanel(): JSX.Element | null {
         ))}
         {rehide && (
           <button title="Spend 1 AP to slip into hiding (needs no awake enemy in your section)." onClick={() => store.dispatch(rehide)}>
-            🧥 Hide (1 AP)
+            🌫️ Hide (1 AP)
           </button>
         )}
         <button className="end-turn" title="End this hero's turn and pass to the next player." onClick={() => store.dispatch({ kind: 'EndTurn' })}>

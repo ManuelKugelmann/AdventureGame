@@ -312,7 +312,7 @@ export function Board(): JSX.Element {
                     {/* alt-action: sneak into this zone (default click moves openly) */}
                     {stealthCmd && (
                       <Text
-                        text="🧥"
+                        text="🌫️"
                         x={geom.w / 2 - 9}
                         y={2}
                         fontSize={15}
