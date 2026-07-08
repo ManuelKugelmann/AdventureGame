@@ -5,6 +5,7 @@ import {
   config,
   getCardDef,
   getHeroClassDef,
+  linkedCards,
   type CardInstance,
   type Command,
   type ContentDB,
@@ -170,6 +171,28 @@ export function Board(): JSX.Element {
       onMouseLeave={() => setTip(null)}
     >
       <Layer>
+        {/* inter-card links: connect a card's exit zone to the linked card's entry zone (drawn behind cards) */}
+        {cards.flatMap((card) => {
+          const from = cardXY(card);
+          return linkedCards(content, state, card.id).map((link, k) => {
+            if (link.toCardId < card.id) return null; // draw each link once
+            const toCard = state.cards[link.toCardId];
+            if (!toCard) return null;
+            const fg = sectionGeoms(content, card).find((g) => g.section.id === link.viaSection);
+            const tg = sectionGeoms(content, toCard).find((g) => g.section.id === link.toSection);
+            if (!fg || !tg) return null;
+            const to = cardXY(toCard);
+            return (
+              <Line
+                key={`link-${card.id}-${k}`}
+                points={[from.x + fg.x + fg.w / 2, from.y + fg.y + fg.h / 2, to.x + tg.x + tg.w / 2, to.y + tg.y + tg.h / 2]}
+                stroke="#46586a"
+                strokeWidth={2}
+                listening={false}
+              />
+            );
+          });
+        })}
         {cards.map((card) => {
           const def = getCardDef(content, card.defId);
           const { x, y } = cardXY(card);
