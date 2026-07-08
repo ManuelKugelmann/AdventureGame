@@ -12,7 +12,9 @@ import { startHeroTurn } from './systems/turn';
 
 export const SetupSchema = z.object({
   scenarioId: z.string().min(1),
-  heroClassIds: z.array(z.string().min(1)).min(1).max(4),
+  // design spec is 1-4 players (game_design.md); the prototype allows up to 6
+  // for stress-testing turn ordering / trigger cascades with larger parties
+  heroClassIds: z.array(z.string().min(1)).min(1).max(6),
   seed: z.number().int(),
 });
 export type Setup = z.infer<typeof SetupSchema>;

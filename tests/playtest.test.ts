@@ -26,8 +26,9 @@ describe('automated playtests (smoke gate)', () => {
     }
   });
 
-  it('solo and 3-hero parties also terminate', () => {
-    for (const heroClassIds of [['warden'], ['warden', 'shadowfoot', 'lorekeeper']]) {
+  it('solo, 3-hero, and 6-hero parties also terminate', () => {
+    const sixHeroes = ['warden', 'shadowfoot', 'lorekeeper', 'warden', 'shadowfoot', 'lorekeeper'];
+    for (const heroClassIds of [['warden'], ['warden', 'shadowfoot', 'lorekeeper'], sixHeroes]) {
       for (let seed = 201; seed <= 205; seed++) {
         const r = runBotGame(content(), { ...DEFAULT_SETUP, heroClassIds, seed }, greedyBot);
         expect(r.state.outcome).toBeDefined();

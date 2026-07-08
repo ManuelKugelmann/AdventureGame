@@ -41,7 +41,7 @@ test('boots, renders the board, bot plays to game over, new game restarts', asyn
   expect(errors, errors.join('\n')).toEqual([]);
 });
 
-test('hot-seat: build a 1-4 player party with selectable classes', async ({ page }) => {
+test('hot-seat: build a 1-6 player party with selectable classes', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   page.on('console', (msg) => {
@@ -54,31 +54,35 @@ test('hot-seat: build a 1-4 player party with selectable classes', async ({ page
   // default party is 2 players
   await expect(page.locator('.party-builder select')).toHaveCount(2);
 
-  // grow to the 4-player cap; add button then disables
+  // grow to the 6-player cap; add button then disables
   const add = page.getByTitle('add player');
-  await add.click();
-  await add.click();
-  await expect(page.locator('.party-builder select')).toHaveCount(4);
+  for (let i = 0; i < 4; i++) await add.click();
+  await expect(page.locator('.party-builder select')).toHaveCount(6);
   await expect(add).toBeDisabled();
 
-  // pick distinct classes per player (duplicates allowed, 3 classes / 4 slots)
-  const classes = ['warden', 'shadowfoot', 'lorekeeper', 'warden'];
+  // pick classes per player (duplicates allowed: 3 classes / 6 slots)
+  const classes = ['warden', 'shadowfoot', 'lorekeeper', 'warden', 'shadowfoot', 'lorekeeper'];
   const selects = page.locator('.party-builder select');
-  for (let i = 0; i < 4; i++) await selects.nth(i).selectOption(classes[i]!);
+  for (let i = 0; i < 6; i++) await selects.nth(i).selectOption(classes[i]!);
 
   await page.getByLabel('seed').fill('3');
   await page.getByRole('button', { name: 'New game' }).click();
 
-  // four heroes now in play, in the chosen classes/order
-  await expect(page.locator('.hero-row')).toHaveCount(4);
+  // six heroes now in play, in the chosen classes/order
+  await expect(page.locator('.hero-row')).toHaveCount(6);
   await expect(page.locator('.hero-row').nth(0)).toContainText('Warden');
   await expect(page.locator('.hero-row').nth(1)).toContainText('Shadowfoot');
-  await expect(page.locator('.hero-row').nth(2)).toContainText('Lorekeeper');
+  await expect(page.locator('.hero-row').nth(5)).toContainText('Lorekeeper');
+
+  // the game is live and playable with a full 6-player party
+  await page.getByRole('button', { name: 'End turn' }).click();
+  await expect(page.locator('.outcome-banner')).toHaveCount(0);
 
   // shrink back down to a solo party
   const remove = page.getByTitle('remove player');
-  await remove.click();
-  await expect(page.locator('.party-builder select')).toHaveCount(3);
+  for (let i = 0; i < 5; i++) await remove.click();
+  await expect(page.locator('.party-builder select')).toHaveCount(1);
+  await expect(remove).toBeDisabled();
 
   expect(errors, errors.join('\n')).toEqual([]);
 });

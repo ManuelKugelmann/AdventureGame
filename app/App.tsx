@@ -3,7 +3,7 @@ import { Board } from './Board';
 import { ActionsPanel, CluesPanel, HeroPanel, LogPanel, ResolutionPanel } from './Panels';
 import { useStore } from './store';
 
-const MAX_PLAYERS = 4;
+const MAX_PLAYERS = 6;
 
 /** Hot-seat party builder: 1–4 players, each picks a hero class (duplicates allowed). */
 function PartyBuilder(): JSX.Element | null {
