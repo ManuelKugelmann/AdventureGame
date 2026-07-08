@@ -38,7 +38,7 @@ export function HeroPanel(): JSX.Element | null {
           >
             <div className="hr-line">
               <span className="hr-name">
-                <b style={{ color: playerColor(h.idx) }}>{h.idx + 1}</b> {classIcon(h.classId)} {def.name}
+                <b style={{ color: playerColor(h.idx) }}>{h.idx + 1} {classIcon(h.classId)}</b> {def.name}
               </span>
               {(h.downed || !h.detected) && (
                 <span className={`hr-status ${h.downed ? 'downed-tag' : 'hidden-mark'}`} title={h.downed ? 'Downed' : 'Hidden'}>
@@ -74,10 +74,10 @@ export function HeroPanel(): JSX.Element | null {
               <span className="hr-hp hp-hearts" title={`${h.hp}/${def.hp} HP`}>HP {hearts(h.hp, def.hp)}</span>
             </div>
             <div className="hr-line hr-skills" title="skills (inventory & armor systems not yet implemented)">
-              <span title="combat" style={{ color: '#d9a05f' }}>⚔ {def.skills.combat >= 0 ? '+' : ''}{def.skills.combat}</span>
-              <span title="stealth" style={{ color: '#6fc8c8' }}>🌫 {def.skills.stealth >= 0 ? '+' : ''}{def.skills.stealth}</span>
-              <span title="magic" style={{ color: '#b088e0' }}>✨ {def.skills.magic >= 0 ? '+' : ''}{def.skills.magic}</span>
-              <span title="social" style={{ color: '#7ec888' }}>💬 {def.skills.social >= 0 ? '+' : ''}{def.skills.social}</span>
+              <span title="combat" style={{ color: '#d9a05f' }}>† {def.skills.combat >= 0 ? '+' : ''}{def.skills.combat}</span>
+              <span title="stealth" style={{ color: '#6fc8c8' }}>☁ {def.skills.stealth >= 0 ? '+' : ''}{def.skills.stealth}</span>
+              <span title="magic" style={{ color: '#b088e0' }}>✶ {def.skills.magic >= 0 ? '+' : ''}{def.skills.magic}</span>
+              <span title="social" style={{ color: '#7ec888' }}>☺ {def.skills.social >= 0 ? '+' : ''}{def.skills.social}</span>
             </div>
           </div>
         );
@@ -90,12 +90,12 @@ export function PoolsPanel(): JSX.Element | null {
   const { content, state } = useStore();
   if (!content || !state) return null;
   const stacks = [
-    { sym: '▬', tag: 'T1', n: state.tilePools.tier1.length, color: '#c9a86a', label: 'tier-1 tiles left to explore into (shallower rows)' },
-    { sym: '▬', tag: 'T2', n: state.tilePools.tier2.length, color: '#a86a4a', label: 'tier-2 tiles left (deeper, tougher rows)' },
-    { sym: '❖', tag: 'T1', n: state.mysteryPools.tier1.length, color: '#7ec8e3', label: 'tier-1 mystery tokens left to draw' },
-    { sym: '❖', tag: 'T2', n: state.mysteryPools.tier2.length, color: '#7ec8e3', label: 'tier-2 mystery tokens left' },
-    { sym: '📖', tag: '', n: state.phaseDecks[state.phaseIdx]?.length ?? 0, color: '#c8b0d8', label: 'story cards left in the current phase deck' },
-    { sym: '☠', tag: '', n: state.encounterPool.length, color: '#c88080', label: 'encounter enemy types (drawn with replacement)' },
+    { sym: '▬', n: state.tilePools.tier1.length, color: '#c9a86a', label: 'tier-1 tiles left to explore into (shallower rows)' },
+    { sym: '▬', n: state.tilePools.tier2.length, color: '#a86a4a', label: 'tier-2 tiles left (deeper, tougher rows)' },
+    { sym: '❖', n: state.mysteryPools.tier1.length, color: '#7ec8e3', label: 'tier-1 mystery tokens left to draw' },
+    { sym: '❖', n: state.mysteryPools.tier2.length, color: '#3f8fa8', label: 'tier-2 mystery tokens left' },
+    { sym: '📖', n: state.phaseDecks[state.phaseIdx]?.length ?? 0, color: '#c8b0d8', label: 'story cards left in the current phase deck' },
+    { sym: '☠', n: state.encounterPool.length, color: '#c88080', label: 'encounter enemy types (drawn with replacement)' },
   ];
   return (
     <div className="panel pools-panel">
@@ -103,7 +103,7 @@ export function PoolsPanel(): JSX.Element | null {
       <div className="stacks">
         {stacks.map((s, i) => (
           <span key={i} className="stack" title={`${s.n} ${s.label}`}>
-            <span style={{ color: s.color }}>{s.sym}</span>{s.tag && <sub>{s.tag}</sub>} {s.n}
+            <span style={{ color: s.color }}>{s.sym}</span> {s.n}
           </span>
         ))}
       </div>

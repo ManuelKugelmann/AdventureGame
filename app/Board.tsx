@@ -287,7 +287,7 @@ export function Board(): JSX.Element {
                           x={4}
                           y={30 + i * 19}
                           fontSize={18}
-                          fill={used ? '#4e584e' : '#7ec8e3'}
+                          fill={used ? '#4e584e' : def.tier === 2 ? '#3f8fa8' : '#7ec8e3'}
                           {...showTip(slotInfo, slotAction)}
                           onClick={(evt) => {
                             evt.cancelBubble = true;
@@ -488,7 +488,7 @@ export function Board(): JSX.Element {
                             strokeWidth={2.5}
                             dash={h.detected ? undefined : [3, 2]}
                           />
-                          <Text text={classIcon(h.classId)} x={-11} y={-11} width={22} height={22} align="center" verticalAlign="middle" fontSize={12} />
+                          <Text text={classIcon(h.classId)} x={-11} y={-11} width={22} height={22} align="center" verticalAlign="middle" fontSize={14} fill="#14201a" />
                         </Group>
                       );
                     })}
