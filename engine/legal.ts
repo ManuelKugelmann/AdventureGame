@@ -24,7 +24,7 @@ export function legalCommands(content: ContentDB, state: GameState): Command[] {
     for (const s of adjacentSections(content, state, hero.cardId, hero.section)) {
       if (!sectionBlocked(content, state, hero.cardId, s) && !sectionFull(content, state, hero.cardId, s)) {
         out.push({ kind: 'MoveSection', toSection: s });
-        if (!hero.detected) out.push({ kind: 'StealthMove', route: [s] });
+        out.push({ kind: 'StealthMove', route: [s] }); // sneak attempt is allowed from the open
       }
     }
   }

@@ -53,7 +53,7 @@ export function HeroPanel(): JSX.Element | null {
               {' '}
               {h.ap > 0 ? '⚡'.repeat(h.ap) : '·'}
             </span>
-            <span className={h.downed ? 'downed-tag' : h.detected ? 'detected' : 'unseen-muted'}> {h.downed ? 'DOWN' : h.detected ? 'DETECTED' : 'unseen'}</span>
+            <span className={h.downed ? 'downed-tag' : h.detected ? 'open-muted' : 'hidden-mark'}> {h.downed ? 'DOWN' : h.detected ? 'in the open' : '🌙 HIDDEN'}</span>
           </div>
         );
       })}

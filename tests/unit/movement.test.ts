@@ -9,15 +9,15 @@ function injectEnemy(state: GameState, id: string, section: string, defId = 'cul
 }
 
 describe('MoveSection', () => {
-  it('moves to an adjacent section for 1 AP, hidden stays hidden when quiet', () => {
+  it('moves to an adjacent section for 1 AP, in the open; empty card stays calm', () => {
     const { state } = newGame();
     const ap = state.heroes[0]!.ap;
     const res = applyCommand(content(), state, { kind: 'MoveSection', toSection: 'cloister_wall' }, makeRng(1));
     const hero = res.state.heroes[0]!;
     expect(hero.section).toBe('cloister_wall');
     expect(hero.ap).toBe(ap - 1);
-    expect(hero.detected).toBe(false);
-    expect(res.state.cards['c0']!.alert).toBe(0);
+    expect(hero.detected).toBe(true); // in the open by default
+    expect(res.state.cards['c0']!.alert).toBe(0); // no witnesses ⇒ no alert
   });
 
   it('rejects non-adjacent moves', () => {
@@ -35,12 +35,12 @@ describe('MoveSection', () => {
     expect(res.events.some((e) => e.kind === 'EnemyActed')).toBe(true);
   });
 
-  it('sleepers do not detect or raise alert', () => {
+  it('sleepers are not witnesses: no alert, no reaction', () => {
     const { state } = newGame();
     injectEnemy(state, 'e91', 'cloister_wall', 'stone_golem', true);
     const res = applyCommand(content(), state, { kind: 'MoveSection', toSection: 'cloister_wall' }, makeRng(1));
-    expect(res.state.heroes[0]!.detected).toBe(false);
-    expect(res.state.cards['c0']!.alert).toBe(0);
+    expect(res.state.cards['c0']!.alert).toBe(0); // a sleeper doesn't see you
+    expect(res.events.some((e) => e.kind === 'EnemyActed')).toBe(false);
   });
 
   it('chokepoint blocks transit and legalCommands agrees', () => {
@@ -117,10 +117,12 @@ describe('StealthMove & ReHide', () => {
     expect(res.state.cards['c0']!.alert).toBeGreaterThanOrEqual(1);
   });
 
-  it('rejects stealth while detected', () => {
+  it('a stealth move can be attempted from the open; a clean success hides', () => {
     const { state } = newGame();
-    state.heroes[0]!.detected = true;
-    expect(() => applyCommand(content(), state, { kind: 'StealthMove', route: ['cloister_wall'] }, makeRng(1))).toThrow(/not hidden/);
+    state.heroes[0]!.detected = true; // out in the open
+    const res = applyCommand(content(), state, { kind: 'StealthMove', route: ['cloister_wall'] }, fixedRng([HIT, HIT]));
+    expect(res.state.heroes[0]!.section).toBe('cloister_wall');
+    expect(res.state.heroes[0]!.detected).toBe(false); // slipped into hiding
   });
 
   it('ReHide succeeds on a good roll and is illegal next to an awake enemy', () => {

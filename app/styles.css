@@ -45,7 +45,8 @@ aside { display: flex; flex-direction: column; gap: 10px; max-width: 100%; }
 .hero-row.downed { opacity: 0.5; text-decoration: line-through; }
 .detected { color: #e07a5f; }
 .hidden-tag { color: #86b787; }
-.unseen-muted { color: #565c4d; font-size: 11px; font-style: italic; } /* the quiet default */
+.open-muted { color: #565c4d; font-size: 11px; font-style: italic; } /* in the open = the quiet default */
+.hidden-mark { color: #86b787; font-weight: bold; } /* hidden is the special, marked state */
 .downed-tag { color: #9a5a5a; }
 
 .action-buttons { display: flex; flex-direction: column; gap: 5px; }

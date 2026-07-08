@@ -7,6 +7,7 @@ function withEnemy(section = 'gate_yard', defId = 'cultist'): GameState {
   const { state } = newGame(); // warden first: combat +1
   state.enemies['e50'] = { id: 'e50', defId, stateIdx: 0, cardId: 'c0', section, acted: false, sleeper: false };
   state.heroes[0]!.ap = 3;
+  state.heroes[0]!.detected = false; // sneak-attack scenario: attacking from hidden (first-strike bonus)
   return state;
 }
 

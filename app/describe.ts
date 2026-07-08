@@ -24,9 +24,9 @@ export function describeEvent(content: ContentDB, ev: GameEvent, heroClassIds: s
     case 'AlertChanged':
       return `Alert ${ev.from}→${ev.to} (${ev.reason})`;
     case 'HeroDetected':
-      return `${heroName(ev.heroIdx)} DETECTED (${ev.reason})`;
+      return `${heroName(ev.heroIdx)} is out in the open (${ev.reason})`;
     case 'HeroHidden':
-      return `${heroName(ev.heroIdx)} slips back into hiding`;
+      return `${heroName(ev.heroIdx)} slips into hiding`;
     case 'StealthRolled':
       return `Stealth roll: ${hits(ev.roll.hits)}, budget ${ev.budget} vs cost ${ev.cost} — ${ev.success ? 'unseen' : 'FAILED'}`;
     case 'AttackRolled':

@@ -454,7 +454,7 @@ export function Board(): JSX.Element {
                       const heroTip = [
                         `Player ${h.idx + 1} — ${hDef.name}`,
                         `HP ${h.hp}/${hDef.hp}`,
-                        h.detected ? 'Detected' : 'Unseen',
+                        h.detected ? 'In the open' : 'Hidden 🌙',
                         ...(h.idx === state.activeHeroIdx ? ['Active this turn'] : []),
                       ].join('\n');
                       return (
@@ -462,7 +462,7 @@ export function Board(): JSX.Element {
                           <Circle
                             radius={11}
                             fill={h.idx === state.activeHeroIdx ? '#2d6a4f' : '#40556a'}
-                            stroke={h.detected ? '#cc3333' : '#88b088'}
+                            stroke={h.detected ? '#5a6a7a' : '#86e0a0'}
                             strokeWidth={2.5}
                             dash={h.detected ? undefined : [3, 3]}
                           />

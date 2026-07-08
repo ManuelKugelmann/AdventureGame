@@ -71,7 +71,7 @@ export function createGame(content: ContentDB, setupRaw: unknown, rng: Rng): { s
         ap: 0,
         cardId: 'c0',
         section: primaryEntry(startDef).id,
-        detected: false,
+        detected: true, // heroes start in the open; hiding requires an active sneak
         downed: false,
         usedHiddenStrike: false,
       };

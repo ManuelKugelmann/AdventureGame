@@ -1,7 +1,6 @@
 import { config } from '../config';
 import type { Ctx } from '../ctx';
-import { getCardDef, getSectionDef } from '../model/content';
-import { enemiesIn, getCard, getHero } from '../model/state';
+import { enemiesIn, enemiesOn, getHero } from '../model/state';
 import { raiseAlertFloor } from './alert';
 import { resolveOneEnemyReaction } from './enemyAi';
 
@@ -16,28 +15,22 @@ export function detectHero(ctx: Ctx, heroIdx: number, reason: string): void {
 }
 
 /**
- * Shared consequences of a hero arriving in a section (normal move or exit
- * crossing — NOT a successful stealth move):
- *  - zone-share with a committed (awake) enemy ⇒ detected + alert floor 2
- *  - open section at alert ≥2 while hidden ⇒ detected
- *  - if the hero is detected: unstealthed movement ⇒ alert floor 1, and one
- *    enemy on the card gets a reaction.
+ * Consequences of a hero arriving openly (normal move or exit crossing — NOT a
+ * successful stealth move). Heroes are in the open by default, so any open
+ * arrival leaves the hero detected. Alert only rises / enemies only react when
+ * there's a witness — an awake enemy on the card; moving openly through empty
+ * rooms stays calm.
  */
 export function afterHeroEnters(ctx: Ctx, heroIdx: number): void {
   const hero = getHero(ctx.draft, heroIdx);
-  const card = getCard(ctx.draft, hero.cardId);
-  const def = getCardDef(ctx.content, card.defId);
-  const section = getSectionDef(def, hero.section);
+  detectHero(ctx, heroIdx, 'in the open'); // exposed by default
 
   if (awakeEnemiesIn(ctx, hero.cardId, hero.section).length > 0) {
-    detectHero(ctx, heroIdx, 'zone-share');
     raiseAlertFloor(ctx, hero.cardId, config.alert.floorZoneShare, 'zone-share with committed enemy');
   }
-  if (!hero.detected && section.cover === 'open' && card.alert >= 2) {
-    detectHero(ctx, heroIdx, 'open section at high alert');
-  }
-  if (getHero(ctx.draft, heroIdx).detected) {
-    raiseAlertFloor(ctx, hero.cardId, config.alert.floorUnstealthedMove, 'unstealthed movement');
+  const witnesses = enemiesOn(ctx.draft, hero.cardId).some((e) => !e.sleeper);
+  if (witnesses) {
+    raiseAlertFloor(ctx, hero.cardId, config.alert.floorUnstealthedMove, 'seen in the open');
     resolveOneEnemyReaction(ctx, hero.cardId);
   }
 }

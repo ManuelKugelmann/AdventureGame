@@ -50,12 +50,10 @@ export function crossExit(ctx: Ctx, heroIdx: number, exitIdx: number): void {
     if (targetCardId === undefined) return; // walled — nothing beyond
   }
 
-  const wasDetected = getHero(ctx.draft, heroIdx).detected;
   beforeHeroExitsCard(ctx, heroIdx);
   const entry = entryLanding(getCardDef(ctx.content, getCard(ctx.draft, targetCardId).defId), exit.side).id;
   ctx.emit({ kind: 'Moved', heroIdx, cardId: targetCardId, section: entry });
-  if (wasDetected) ctx.emit({ kind: 'HeroHidden', heroIdx }); // reset to hidden on card transition
-  afterHeroEnters(ctx, heroIdx);
+  afterHeroEnters(ctx, heroIdx); // crossing openly ⇒ in the open on the new card
   checkAmbushes(ctx, heroIdx);
   peekFromZone(ctx, heroIdx);
 }
@@ -164,7 +162,7 @@ function exploreExit(ctx: Ctx, fromCardId: string, exitIdx: number): string | un
  */
 export function stealthMove(ctx: Ctx, heroIdx: number, route: string[]): void {
   const hero = getHero(ctx.draft, heroIdx);
-  if (hero.detected) throw new Error('StealthMove: hero is not hidden');
+  // heroes are in the open by default; a stealth move is the attempt to slip into hiding
   const card = getCard(ctx.draft, hero.cardId);
   const def = getCardDef(ctx.content, card.defId);
 
@@ -218,6 +216,8 @@ export function stealthMove(ctx: Ctx, heroIdx: number, route: string[]): void {
     detectHero(ctx, heroIdx, 'zone-share');
     raiseAlertFloor(ctx, hero.cardId, config.alert.floorZoneShare, 'zone-share with committed enemy');
     resolveOneEnemyReaction(ctx, hero.cardId);
+  } else if (hero.detected) {
+    ctx.emit({ kind: 'HeroHidden', heroIdx }); // slipped from the open into hiding
   }
   if (reached > 0) {
     checkAmbushes(ctx, heroIdx); // moving near a nook can spring it

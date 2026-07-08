@@ -16,7 +16,7 @@ describe('createGame', () => {
     for (const hero of state.heroes) {
       expect(hero.cardId).toBe('c0');
       expect(hero.section).toBe('gate_yard');
-      expect(hero.detected).toBe(false);
+      expect(hero.detected).toBe(true); // heroes start in the open
     }
     expect(state.round).toBe(1);
     expect(state.activeHeroIdx).toBe(0);
