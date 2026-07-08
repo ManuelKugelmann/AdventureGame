@@ -37,6 +37,8 @@ export interface GameConfig {
     deescalateEmptyRounds: { fromThree: number; fromTwo: number; fromOne: number };
     /** encounter chance per round-end check, indexed by card alert 0-3 */
     encounterChancePct: number[];
+    /** chance each encounter draw is a blank (false alarm — nothing spawns), like blanks in the monster bag */
+    encounterBlankPct: number;
     /** sustained alert-3 rounds after which encounters spawn an extra enemy */
     severityEscalationAge: number;
     /** total live enemies cap (spawns beyond this are skipped) */
@@ -96,6 +98,7 @@ export const config: GameConfig = {
     floorEnemyDamaged: 3,
     deescalateEmptyRounds: { fromThree: 1, fromTwo: 2, fromOne: 3 },
     encounterChancePct: [0, 10, 30, 60],
+    encounterBlankPct: 30,
     severityEscalationAge: 2,
     enemyCap: 8,
   },

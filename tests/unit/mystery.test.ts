@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyCommand, makeRng } from '../../engine/index';
+import { applyCommand, config, makeRng } from '../../engine/index';
 import type { GameState, Rng } from '../../engine/index';
 import { content, newGame, fixedRng } from '../helpers';
 
@@ -49,6 +49,7 @@ describe('Inspect / mystery tokens', () => {
   });
 
   it('rune token fires its symbol card (ambush spawns from the encounter pool)', () => {
+    config.alert.encounterBlankPct = 0; // deterministic spawn for this assertion (no false alarm)
     const state = rigged(['rune_ambush']);
     const before = Object.keys(state.enemies).length;
     const res = inspect(state, fixedRng([0.0]));

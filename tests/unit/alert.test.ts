@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyCommand, makeRng } from '../../engine/index';
+import { applyCommand, config, makeRng } from '../../engine/index';
 import type { GameState } from '../../engine/index';
 import { content, fixedRng, newGame } from '../helpers';
 
@@ -33,6 +33,7 @@ describe('alert propagation & escalation', () => {
   });
 
   it('sustained alert 3 escalates encounter severity (2 spawns)', () => {
+    config.alert.encounterBlankPct = 0; // deterministic spawns for this assertion (no false alarms)
     const { state } = newGame({ heroClassIds: ['warden'] });
     state.cards['c0']!.alert = 3;
     state.cards['c0']!.alertThreeRounds = 2; // ≥ severityEscalationAge

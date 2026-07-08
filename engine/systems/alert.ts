@@ -80,6 +80,7 @@ export function spawnEncounter(ctx: Ctx, cardId: string, count: number): void {
   let spawned = 0;
   for (let i = 0; i < count; i++) {
     if (enemyCapReached(ctx.draft)) break;
+    if (config.alert.encounterBlankPct > 0 && ctx.rng.chancePct(config.alert.encounterBlankPct)) continue; // blank draw — a false alarm
     const enemyDefId = ctx.rng.pick(ctx.draft.encounterPool);
     getEnemyDef(ctx.content, enemyDefId); // assert exists
     const enemyId = `e${ctx.draft.nextId}`;
