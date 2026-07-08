@@ -310,11 +310,11 @@ export function Board(): JSX.Element {
                         />
                       );
                     })}
-                    {/* alt-action: sneak into this zone — a dashed move-arrow (dashed = hidden, like the hero ring) */}
+                    {/* alt-action: sneak into this zone — footsteps inside a dashed ring (walking, but hidden) */}
                     {stealthCmd && (
                       <Group
-                        x={geom.w - 24}
-                        y={4}
+                        x={geom.w - 15}
+                        y={11}
                         {...showTip('Stealth move here.\nRoll vs alert; slip in unseen if you succeed.', `sneak (${config.costs.moveSection} AP)`)}
                         onClick={(evt) => {
                           evt.cancelBubble = true;
@@ -325,8 +325,8 @@ export function Board(): JSX.Element {
                           store.dispatch(stealthCmd);
                         }}
                       >
-                        <Line points={[0, 6, 12, 6]} stroke="#86e0a0" strokeWidth={1.6} dash={[3, 2]} />
-                        <Line points={[8, 2, 12, 6, 8, 10]} stroke="#86e0a0" strokeWidth={1.6} dash={[3, 2]} lineJoin="round" />
+                        <Circle radius={9} stroke="#86e0a0" strokeWidth={1.4} dash={[3, 2]} />
+                        <Text text="👣" x={-8} y={-7} fontSize={12} />
                       </Group>
                     )}
                     {/* alt-action: hide in place — a dashed circle, matching the hidden hero ring */}
