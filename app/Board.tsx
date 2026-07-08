@@ -294,9 +294,9 @@ export function Board(): JSX.Element {
                         <Text
                           key={i}
                           text="❖"
-                          x={6 + i * 22}
-                          y={30}
-                          fontSize={19}
+                          x={4}
+                          y={30 + i * 19}
+                          fontSize={18}
                           fill={used ? '#4e584e' : '#7ec8e3'}
                           {...showTip(slotInfo, slotAction)}
                           onClick={(evt) => {
@@ -325,8 +325,14 @@ export function Board(): JSX.Element {
                           store.dispatch(stealthCmd);
                         }}
                       >
-                        <Circle radius={9} stroke="#86e0a0" strokeWidth={1.4} dash={[3, 2]} />
-                        <Text text="👣" x={-8} y={-7} fontSize={12} />
+                        <Circle radius={10} stroke="#86e0a0" strokeWidth={1.4} dash={[3, 2]} />
+                        {/* 4-way move arrow */}
+                        <Line points={[0, -6, 0, 6]} stroke="#86e0a0" strokeWidth={1.3} />
+                        <Line points={[-6, 0, 6, 0]} stroke="#86e0a0" strokeWidth={1.3} />
+                        <Line points={[-2, -4, 0, -6, 2, -4]} stroke="#86e0a0" strokeWidth={1.3} lineJoin="round" />
+                        <Line points={[-2, 4, 0, 6, 2, 4]} stroke="#86e0a0" strokeWidth={1.3} lineJoin="round" />
+                        <Line points={[-4, -2, -6, 0, -4, 2]} stroke="#86e0a0" strokeWidth={1.3} lineJoin="round" />
+                        <Line points={[4, -2, 6, 0, 4, 2]} stroke="#86e0a0" strokeWidth={1.3} lineJoin="round" />
                       </Group>
                     )}
                     {/* alt-action: hide in place — a dashed circle, matching the hidden hero ring */}
@@ -434,7 +440,7 @@ export function Board(): JSX.Element {
                       return (
                         <Group
                           key={e.id}
-                          x={15 + i * 26}
+                          x={26 + i * 24}
                           y={tokenY}
                           {...showTip(enemyInfo, atkAps.length ? 'focus (attack via the ⚔ icons)' : 'focus')}
                           onClick={(evt) => {
