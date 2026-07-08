@@ -123,10 +123,6 @@ export function ActionsPanel(): JSX.Element | null {
       <h3 title="Whose turn it is. Players share one screen and pass it on each turn.">
         ▶ {activeName}'s turn <span className="turn-tag">(player {state.activeHeroIdx + 1})</span>
       </h3>
-      <label className="sneak-toggle" title="When on, clicking a section attempts a stealth move (roll vs alert) instead of walking openly.">
-        <input type="checkbox" checked={store.sneak} onChange={(e) => store.setSneak(e.target.checked)} />
-        stealth
-      </label>
       <div className="action-buttons">
         {targetAttacks.slice(0, config.costs.attackMaxAp).map((a) => (
           <button

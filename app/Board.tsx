@@ -106,10 +106,10 @@ export function Board(): JSX.Element {
   const tryMove = (cardId: string, sectionId: string): void => {
     if (!hero) return;
     if (hero.cardId === cardId) {
-      // move within the current card
-      const stealth = legal.find((c) => c.kind === 'StealthMove' && c.route[0] === sectionId);
+      // default click = move openly; the 🥿 alt-icon does the stealth move
       const move = legal.find((c) => c.kind === 'MoveSection' && c.toSection === sectionId);
-      const cmd: Command | undefined = store.sneak && stealth ? stealth : (move ?? stealth);
+      const stealth = legal.find((c) => c.kind === 'StealthMove' && c.route[0] === sectionId);
+      const cmd: Command | undefined = move ?? stealth;
       if (cmd) store.dispatch(cmd);
       return;
     }
@@ -137,7 +137,7 @@ export function Board(): JSX.Element {
     if (cmd) store.dispatch(cmd);
   };
 
-  const moveLabel = `move ${store.sneak ? 'stealthy' : 'openly'} (${config.costs.moveSection} AP)`;
+  const moveLabel = `move openly (${config.costs.moveSection} AP)`;
 
   const cards = Object.values(state.cards);
   const minX = Math.min(...cards.map((c) => cardXY(c).x));
@@ -259,6 +259,7 @@ export function Board(): JSX.Element {
                 const canMoveHere =
                   !!hero && hero.cardId === card.id &&
                   legal.some((c) => (c.kind === 'MoveSection' && c.toSection === sDef.id) || (c.kind === 'StealthMove' && c.route[0] === sDef.id));
+                const stealthCmd = hero && hero.cardId === card.id ? legal.find((c) => c.kind === 'StealthMove' && c.route[0] === sDef.id) : undefined;
                 const canCrossHere =
                   !!hero && hero.cardId !== card.id &&
                   legal.some((c) => c.kind === 'CrossExit' && state.cards[hero.cardId]?.exploredExits[c.exitIdx] === card.id);
@@ -306,32 +307,90 @@ export function Board(): JSX.Element {
                         />
                       );
                     })}
+                    {/* alt-action: sneak into this zone (default click moves openly) */}
+                    {stealthCmd && (
+                      <Text
+                        text="🥿"
+                        x={geom.w / 2 - 9}
+                        y={2}
+                        fontSize={15}
+                        {...showTip('Stealth move here.\nRoll vs alert; slip in unseen if you succeed.', `sneak (${config.costs.moveSection} AP)`)}
+                        onClick={(evt) => {
+                          evt.cancelBubble = true;
+                          store.dispatch(stealthCmd);
+                        }}
+                        onTap={(evt) => {
+                          evt.cancelBubble = true;
+                          store.dispatch(stealthCmd);
+                        }}
+                      />
+                    )}
                     {/* blockers (doors/grates) belong to the exit zone and are interacted with here */}
                     {def.topExits.map((e, idx) => {
-                      if (e.section !== sDef.id || !e.blocker) return null;
-                      if (card.openedExits.includes(idx) || card.blockedExits.includes(idx)) return null;
+                      if (e.section !== sDef.id || !e.blocker || card.blockedExits.includes(idx)) return null;
                       const blk = e.blocker;
+                      const isOpen = card.openedExits.includes(idx);
+                      if (isOpen) {
+                        const closeCmd = legal.find((c) => c.kind === 'CloseExit' && c.exitIdx === idx);
+                        return (
+                          <Text
+                            key={`blk${idx}`}
+                            text="🔓"
+                            x={geom.w - 24}
+                            y={3}
+                            fontSize={16}
+                            {...showTip(`${blk.label} — standing open`, closeCmd ? `pull shut (${config.costs.crossExit} AP)` : undefined)}
+                            onClick={(evt) => {
+                              evt.cancelBubble = true;
+                              if (closeCmd) store.dispatch(closeCmd);
+                            }}
+                            onTap={(evt) => {
+                              evt.cancelBubble = true;
+                              if (closeCmd) store.dispatch(closeCmd);
+                            }}
+                          />
+                        );
+                      }
                       const canOpen = legal.some((c) => c.kind === 'OpenExit' && c.exitIdx === idx);
-                      const canPeek = legal.some((c) => c.kind === 'PeekExit' && c.exitIdx === idx);
+                      const peekCmd = legal.find((c) => c.kind === 'PeekExit' && c.exitIdx === idx);
                       const bInfo = `${blk.label}\n${blk.openable ? 'A shut door — open to pass, or peek through.' : 'Sealed for good — peek through only.'}`;
-                      const bAction = canOpen ? `open (${config.costs.crossExit} AP)` : canPeek ? `peek through (${config.costs.inspect} AP)` : undefined;
+                      const bAction = canOpen ? `open (${config.costs.crossExit} AP)` : peekCmd ? `peek through (${config.costs.inspect} AP)` : undefined;
                       return (
-                        <Text
-                          key={`blk${idx}`}
-                          text={blk.openable ? '🚪' : '▦'}
-                          x={geom.w - 24}
-                          y={3}
-                          fontSize={18}
-                          {...showTip(bInfo, bAction)}
-                          onClick={(evt) => {
-                            evt.cancelBubble = true;
-                            tryExit(card.id, idx);
-                          }}
-                          onTap={(evt) => {
-                            evt.cancelBubble = true;
-                            tryExit(card.id, idx);
-                          }}
-                        />
+                        <Group key={`blk${idx}`}>
+                          <Text
+                            text={blk.openable ? '🚪' : '▦'}
+                            x={geom.w - 24}
+                            y={3}
+                            fontSize={18}
+                            {...showTip(bInfo, bAction)}
+                            onClick={(evt) => {
+                              evt.cancelBubble = true;
+                              tryExit(card.id, idx);
+                            }}
+                            onTap={(evt) => {
+                              evt.cancelBubble = true;
+                              tryExit(card.id, idx);
+                            }}
+                          />
+                          {/* alt-action: peek through (default click opens the door) */}
+                          {blk.openable && peekCmd && (
+                            <Text
+                              text="👁"
+                              x={geom.w - 24}
+                              y={24}
+                              fontSize={13}
+                              {...showTip('Peek through the keyhole without opening it.', `peek (${config.costs.inspect} AP)`)}
+                              onClick={(evt) => {
+                                evt.cancelBubble = true;
+                                store.dispatch(peekCmd);
+                              }}
+                              onTap={(evt) => {
+                                evt.cancelBubble = true;
+                                store.dispatch(peekCmd);
+                              }}
+                            />
+                          )}
+                        </Group>
                       );
                     })}
                     {/* enemies */}
@@ -344,12 +403,16 @@ export function Board(): JSX.Element {
                       const enemyInfo = e.sleeper
                         ? [`${eDef?.name ?? e.defId}`, 'Dormant 💤 — neutral until disturbed.', 'Sneak past, or strike first.'].join('\n')
                         : [`${eDef?.name ?? e.defId}`, `${stateName} — ${remaining}/${total} health`].join('\n');
+                      const atkAps = legal
+                        .filter((c) => c.kind === 'Attack' && c.targetId === e.id)
+                        .map((c) => (c as Extract<Command, { kind: 'Attack' }>).ap)
+                        .sort((a, b) => a - b);
                       return (
                         <Group
                           key={e.id}
                           x={15 + i * 26}
                           y={tokenY}
-                          {...showTip(enemyInfo, legal.some((c) => c.kind === 'Attack' && c.targetId === e.id) ? 'focus & attack' : 'focus')}
+                          {...showTip(enemyInfo, atkAps.length ? 'focus (attack via the ⚔ icons)' : 'focus')}
                           onClick={(evt) => {
                             evt.cancelBubble = true;
                             store.selectEnemy(selected ? undefined : e.id);
@@ -362,6 +425,26 @@ export function Board(): JSX.Element {
                           <Circle radius={11} fill={e.sleeper ? '#4e4668' : '#7d3434'} stroke={selected ? '#e8d44d' : '#222'} strokeWidth={selected ? 3 : 1} />
                           <Text text={e.sleeper ? '💤' : (eDef?.name[0] ?? '?')} x={-5} y={-6} fontSize={11} fill="#e8dcc8" />
                           <Text text={'♥'.repeat(remaining) + '♡'.repeat(e.stateIdx)} x={-12} y={12} fontSize={9} fill="#d98080" />
+                          {/* alt-action: direct attack at N AP (more AP = more dice) */}
+                          {atkAps.map((ap, k) => (
+                            <Group
+                              key={ap}
+                              x={-14 + k * 15}
+                              y={-27}
+                              {...showTip(`Attack with ${ap} AP → roll ${ap} dice.`, `attack ${ap} AP`)}
+                              onClick={(evt) => {
+                                evt.cancelBubble = true;
+                                store.dispatch({ kind: 'Attack', targetId: e.id, ap });
+                              }}
+                              onTap={(evt) => {
+                                evt.cancelBubble = true;
+                                store.dispatch({ kind: 'Attack', targetId: e.id, ap });
+                              }}
+                            >
+                              <Rect width={13} height={12} cornerRadius={2} fill="#5a2020" stroke="#a05050" strokeWidth={0.5} />
+                              <Text text={`${ap}`} x={4} y={1} fontSize={10} fontStyle="bold" fill="#f0c0c0" />
+                            </Group>
+                          ))}
                         </Group>
                       );
                     })}
